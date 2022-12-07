@@ -17,8 +17,11 @@
 #define __BOARD_H__
 
 #include "CH58x_common.h"
-#include "drv_lcd.h"
 #include "drv_usart.h"
+#include "drv_led.h"
+#include "drv_buzzer.h"
+#include "drv_lcd.h"
+#include "drv_usbd.h"
 
 /* board configuration */
 #define SRAM_SIZE  32

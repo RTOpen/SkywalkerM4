@@ -9,51 +9,37 @@ extern "C" {
 /**************************************************************************************************
  *                                              MACROS
  **************************************************************************************************/
-#define HAL_KEY_POLLING_VALUE    100
 
 /* Switches (keys) */
-#define HAL_KEY_SW_1             0x01  // key1
-#define HAL_KEY_SW_2             0x02  // key2
-#define HAL_KEY_SW_3             0x04  // key3
-#define HAL_KEY_SW_4             0x08  // key4
+#define KEY_SW_HOME             0x01  // key home
+#define KEY_SW_LEFT             0x02  // key left size
+#define KEY_SW_RIGHT            0x04  // key right size
+#define KEY_SW_POWER            0x08  // key power
 
 /* 按键定义 */
 
 /* 1 - KEY */
-#define KEY1_BV                  BV(22)
-#define KEY2_BV                  BV(4)
-#define KEY3_BV                  ()
-#define KEY4_BV                  ()
+#define KEY_HOME_BV                  BV(22)
+#define KEY_LEFT_BV                  BV(5)
+#define KEY_RIGHT_BV                 BV(2)
+#define KEY_POWER_BV                 BV(6)
 
-#define KEY1_PU                  (R32_PB_PU |= KEY1_BV)
-#define KEY2_PU                  (R32_PB_PU |= KEY2_BV)
-#define KEY3_PU                  ()
-#define KEY4_PU                  ()
+#define KEY_HOME_PU                  (R32_PB_PU |= KEY_HOME_BV)
+#define KEY_LEFT_PU                  (R32_PA_PU |= KEY_LEFT_BV)
+#define KEY_RIGHT_PU                 (R32_PB_PU |= KEY_RIGHT_BV)
+#define KEY_POWER_PU                 (R32_PB_PU |= KEY_POWER_BV)
 
-#define KEY1_DIR                 (R32_PB_DIR &= ~KEY1_BV)
-#define KEY2_DIR                 (R32_PB_DIR &= ~KEY2_BV)
-#define KEY3_DIR                 ()
-#define KEY4_DIR                 ()
+#define KEY_HOME_DIR                 (R32_PB_DIR &= ~KEY_HOME_BV)
+#define KEY_LEFT_DIR                 (R32_PA_DIR &= ~KEY_LEFT_BV)
+#define KEY_RIGHT_DIR                (R32_PB_DIR &= ~KEY_RIGHT_BV)
+#define KEY_POWER_DIR                (R32_PB_DIR &= ~KEY_POWER_BV)
 
-#define KEY1_IN                  (ACTIVE_LOW(R32_PB_PIN & KEY1_BV))
-#define KEY2_IN                  (ACTIVE_LOW(R32_PB_PIN & KEY2_BV))
-#define KEY3_IN                  ()
-#define KEY4_IN                  ()
+#define KEY_HOME_IN                  (ACTIVE_LOW(R32_PB_PIN & KEY_HOME_BV))
+#define KEY_LEFT_IN                  (ACTIVE_LOW(R32_PA_PIN & KEY_LEFT_BV))
+#define KEY_RIGHT_IN                 (ACTIVE_LOW(R32_PB_PIN & KEY_RIGHT_BV))
+#define KEY_POWER_IN                 (ACTIVE_LOW(R32_PB_PIN & KEY_POWER_BV))
 
-#define HAL_PUSH_BUTTON1()       (KEY1_IN) //添加自定义按键
-#define HAL_PUSH_BUTTON2()       (KEY2_IN)
-#define HAL_PUSH_BUTTON3()       (0)
-#define HAL_PUSH_BUTTON4()       (0)
 
-/**************************************************************************************************
- * TYPEDEFS
- **************************************************************************************************/
-typedef void (*halKeyCBack_t)(uint8_t keys);
-
-typedef struct
-{
-    uint8_t keys; // keys
-} keyChange_t;
 
 /**************************************************************************************************
  *                                             GLOBAL VARIABLES
@@ -64,31 +50,16 @@ typedef struct
  */
 
 /**
- * @brief   Initialize the Key Service
+ * @brief   Initialize the Key
  */
 void key_hw_init(void);
 
 /**
- * @brief   This is for internal used by hal_driver
+ * @brief   key scan
  */
-void HAL_KeyPoll(void);
+uint8_t key_scan(void);
 
-/**
- * @brief   Configure the Key serivce
- *
- * @param   cback - pointer to the CallBack function
- */
-void HalKeyConfig(const halKeyCBack_t cback);
 
-/**
- * @brief   Read the Key callback
- */
-void HalKeyCallback(uint8_t keys);
-
-/**
- * @brief   Read the Key status
- */
-uint8_t HalKeyRead(void);
 
 /**************************************************************************************************
 **************************************************************************************************/

@@ -41,6 +41,11 @@
       <type>2</type>
       <location>PARENT-1-PROJECT_LOC/Libraries/ch582/ble_lib</location>
     </link>
+    <link>
+      <name>CherryUSB</name>
+      <type>2</type>
+      <location>PARENT-1-PROJECT_LOC/Libraries/CherryUSB</location>
+    </link>
   </linkedResources>
   <filteredResources>
     <filter>

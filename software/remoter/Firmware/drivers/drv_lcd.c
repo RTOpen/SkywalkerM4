@@ -39,10 +39,9 @@ void lcd_write_datas(uint8_t *data,uint16_t len)
 
 static void GPIO_Configuration(void)
 {
-  GPIOA_ModeCfg(GPIO_Pin_4 |GPIO_Pin_5 |GPIO_Pin_11|GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14, GPIO_ModeOut_PP_5mA);
-  
+  GPIOA_ModeCfg(GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14, GPIO_ModeOut_PP_5mA);
+  GPIOB_ModeCfg(GPIO_Pin_9 | GPIO_Pin_17, GPIO_ModeOut_PP_5mA);
   LCD_DC_HIGH();
-  LCD_CS_LOW();
 }
 
 static void SPI_Configuration(void)
