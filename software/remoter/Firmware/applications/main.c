@@ -2,29 +2,8 @@
 #include <rtthread.h>
 #include "threads.h"
 #include "usbd_cdc_acm_hid.h"
-
-ALIGN(RT_ALIGN_SIZE)
-static char task2_stack[512];
-static struct rt_thread task2_thread;
-
-/*********************************************************************
- * @fn      task2_entry
- *
- * @brief   task2ÈÎÎñº¯Êý
- *
- * @return  none
- */
-void task2_entry(void *parameter)
-{
-    while(1)
-    {
-//        uint16_t c = rand()%0xffff;
-//        lcd_fill_rect(0,0,240,240,c);
-//        rt_kprintf("task2\r\n");
-        rt_thread_delay(800);
-    }
-}
-
+#include "radio.h"
+#include "params.h"
 
 /*********************************************************************
  * @fn      main
@@ -37,28 +16,33 @@ void task2_entry(void *parameter)
  */
 int main()
 {
-    cdc_acm_init();
+    uint16_t channels[CHANNEL_MAX]={0};
+    params_init();
+    adc_hw_init();
+    //cdc_acm_init();
     led_hw_init();
     lcd_hw_init();
     buzzer_hw_init();
-    //usbd_hw_init();
+    //encoder_hw_init();
     tone_play_thread_init();
     led_thread_init();
+    ui_thread_init();
+    while(1)
+    {
+        channels[ROLL] = adc_read(ADC_CHANNEL_4);
+        channels[PITCH] = adc_read(ADC_CHANNEL_3);
+        channels[YAW] = adc_read(ADC_CHANNEL_2);
+        channels[THROTTLE] = adc_read(ADC_CHANNEL_1);
+        channels[AUX1] = adc_read(ADC_CHANNEL_5);
+        //channels[ROLL] = encoder_read_pos(ROTARY_ENCODER_A);// = adc_read(ADC_CHANNEL_TEMP);
+        //channels[PITCH] = encoder_read_pos(ROTARY_ENCODER_B);
+        channels[AUX4]++;
+        for (int i = 0; i < CHANNEL_MAX; ++i) {
+            radio.channels[i] = channels[i];
+        }
 
-//    rt_enter_critical();
-//
-//
-//    rt_thread_init(&task2_thread,
-//                   "task2",
-//                   task2_entry,
-//                   RT_NULL,
-//                   &task2_stack[0],
-//                   sizeof(task2_stack),
-//                   4, 20);
-//    rt_thread_startup(&task2_thread);
-//
-//    rt_exit_critical();
-
+        rt_thread_mdelay(20);
+    }
     return 0;
 }
 

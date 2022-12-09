@@ -19,21 +19,23 @@ static void led_thread_entry(void *parameter)
 {
     rt_uint32_t evt = 0;
     rt_err_t ret = RT_EOK;
-    rt_uint32_t led_update = 0;
+    rt_uint32_t timeout = 100;
+    rt_uint32_t update = 0;
+
     while(1)
     {
        ret = rt_event_recv(&led_event, 0xffffffff,
                           RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
-                          100, &evt);
+                          timeout, &evt);
         if(ret == RT_EOK)
         {
         
             
             
         }
-        if(rt_tick_get() - led_update >500)
+        if(rt_tick_get() - update >500)
         {
-           led_toggle(LED_ALL);
+           led_toggle(LED_2);
         }
     }
 }
@@ -57,4 +59,3 @@ int led_thread_init(void)
     
     return 0;
 }
-INIT_APP_EXPORT(led_thread_init);

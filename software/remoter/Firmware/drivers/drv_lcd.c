@@ -8,6 +8,7 @@
 static font_t *default_font = NULL;
 
 #define BUFFER_SIZE  (1600)
+
 ALIGN(RT_ALIGN_SIZE)
 uint16_t lcd_buffer[BUFFER_SIZE];
 
@@ -160,7 +161,7 @@ void lcd_hw_init(void)
   GPIO_Configuration();
   SPI_Configuration();
   lcd_reg_init();
-  lcd_fill_rect(0,0,240,240,0xf800);
+  lcd_fill_rect(0,0,240,240,0x2AD3);
 }
 
 /**
@@ -222,7 +223,7 @@ static inline void lcd_draw_pixel(uint16_t x, uint16_t y, uint16_t color)
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-  LCD_WRITE_COLOR(color);
+  SPI0_MasterDMATrans((uint8_t*)&color, 2);
 }
 
 // Draw rectangle of filling
@@ -284,7 +285,7 @@ void lcd_fill_rect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t 
   */
 void lcd_draw_hline(uint16_t x, uint16_t y, uint16_t length,uint16_t color)
 {
-  uint16_t counter = 0;
+  int16_t len = 0;
   uint8_t data[4] = {0};
   if(x >= LCD_PIXEL_WIDTH)
       return;
@@ -312,9 +313,22 @@ void lcd_draw_hline(uint16_t x, uint16_t y, uint16_t length,uint16_t color)
     
   /* Memory write */
   LCD_WRITE_REG(0x2C);
-  for(counter = 0; counter < length; counter++)
+
+  for(int i=0;i< BUFFER_SIZE;i++)
   {
-    LCD_WRITE_COLOR(color);
+      lcd_buffer[i] = color;
+  }
+  len = length;
+    while(len > 0)
+  {
+       if(len > BUFFER_SIZE)
+       {
+           SPI0_MasterDMATrans((uint8_t*)lcd_buffer, BUFFER_SIZE*2);
+       }else
+           {
+               SPI0_MasterDMATrans((uint8_t*)lcd_buffer, len*2);
+           }
+           len -=BUFFER_SIZE;
   }
 }
 
@@ -495,9 +509,7 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-	for(int i=0;i< r*r;i++) {
-       LCD_WRITE_COLOR(lcd_buffer[i]);
-	}
+  SPI0_MasterDMATrans(lcd_buffer,r*r*2);
   
     //copy data top right
   for(int i = 0;i< r;i++)
@@ -527,9 +539,7 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-	for(int i=0;i< r*r;i++) {
-       LCD_WRITE_COLOR(lcd_buffer[i]);
-	}
+  SPI0_MasterDMATrans(lcd_buffer,r*r*2);
    
   //copy data bottom left
   for(int i = 0;i< r;i++)
@@ -559,9 +569,7 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-	for(int i=0;i< r*r;i++) {
-       LCD_WRITE_COLOR(lcd_buffer[i]);
-	}
+  SPI0_MasterDMATrans(lcd_buffer,r*r*2);
  
   //copy data bottom right
   for(int i = 0;i< r;i++)
@@ -590,10 +598,7 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
   lcd_write_datas(data, 4);
 
     /*Memory write*/
-  LCD_WRITE_REG(0x2C);
-	for(int i=0;i< r*r;i++) {
-       LCD_WRITE_COLOR(lcd_buffer[i]);
-	}
+  SPI0_MasterDMATrans(lcd_buffer,r*r*2);
  
   //copy data top
   uint16_t line_len = (src_w - 2*r);
@@ -626,6 +631,7 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
+  SPI0_MasterDMATrans(lcd_buffer,r*r*2);
 	for(int i=0;i < r;i++) {
        for(int j= 0;j < (width - 2*r);j++)
         {
