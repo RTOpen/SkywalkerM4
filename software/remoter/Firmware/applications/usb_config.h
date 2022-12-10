@@ -28,7 +28,7 @@
 #endif
 
 /* attribute data into no cache ram */
-#define USB_NOCACHE_RAM_SECTION __attribute__((section(".dma")))
+#define USB_NOCACHE_RAM_SECTION __attribute__((aligned(4)))
 
 /* ================= USB Device Stack Configuration ================ */
 
@@ -116,7 +116,7 @@
 //#define USBD_IRQHandler  USBD_IRQHandler
 //#define USB_BASE (0x40080000UL)
 #define USB_NUM_BIDIR_ENDPOINTS 8
-
+#define EP_NUMS 8
 /* ================ USB Host Port Configuration ==================*/
 
 #define CONFIG_USBHOST_PIPE_NUM 10

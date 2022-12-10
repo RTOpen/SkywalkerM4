@@ -67,12 +67,15 @@ void state_change(encoder_data_t *data,uint16_t astate, uint16_t bstate)
   {
 
     case 0x01:
+    case 0x07:
+    case 0x08:
     case 0x0E:                                      //CW states, 1 count  per click
         data->pos++;
       break;
-
+    case 0x02:
     case 0x04:
-    case 0x0B:                                   //CCW states, 1 count  per click
+    case 0x0B:
+    case 0x0D:                                   //CCW states, 1 count  per click
         data->pos--;
       break;
   }
@@ -128,24 +131,22 @@ uint16_t encoder_read_pos(uint8_t id)
  *
  * @return  none
  */
-__INTERRUPT
 __HIGH_CODE
 void GPIOA_IRQHandler(void)
 {
-//    if(GPIOA_ReadITFlagBit(ROTARY_ENCODER_A_A_BV))
-//    {
-//    uint16_t astat = (R32_PA_PIN & ROTARY_ENCODER_A_A_BV);
-//    uint16_t bstat = (R32_PA_PIN & ROTARY_ENCODER_A_B_BV);
-//    GPIOA_ClearITFlagBit(ROTARY_ENCODER_A_A_BV);
-    //state_change(&encoder_data[0],astat,bstat);
-//    if(astat)
-//    {
-//        GPIOA_ITModeCfg(ROTARY_ENCODER_A_A_BV,GPIO_ITMode_FallEdge);
-//    }else {
-//        GPIOA_ITModeCfg(ROTARY_ENCODER_A_A_BV,GPIO_ITMode_RiseEdge);
-//    }
-//    }
-    GPIOA_ClearITFlagBit(0xffff);
+    if(GPIOA_ReadITFlagBit(ROTARY_ENCODER_A_A_BV))
+    {
+    uint16_t astat = (R32_PA_PIN & ROTARY_ENCODER_A_A_BV);
+    uint16_t bstat = (R32_PA_PIN & ROTARY_ENCODER_A_B_BV);
+    GPIOA_ClearITFlagBit(ROTARY_ENCODER_A_A_BV);
+    state_change(&encoder_data[0],astat,bstat);
+    if(astat)
+    {
+        GPIOA_ITModeCfg(ROTARY_ENCODER_A_A_BV,GPIO_ITMode_FallEdge);
+    }else {
+        GPIOA_ITModeCfg(ROTARY_ENCODER_A_A_BV,GPIO_ITMode_RiseEdge);
+    }
+    }
 }
 
 /*********************************************************************
@@ -155,7 +156,6 @@ void GPIOA_IRQHandler(void)
  *
  * @return  none
  */
-__INTERRUPT
 __HIGH_CODE
 void GPIOB_IRQHandler(void)
 {
@@ -164,14 +164,12 @@ void GPIOB_IRQHandler(void)
     uint16_t astat = (R32_PB_PIN & ROTARY_ENCODER_B_A_BV);
     uint16_t bstat = (R32_PB_PIN & ROTARY_ENCODER_B_B_BV);
     GPIOB_ClearITFlagBit(ROTARY_ENCODER_B_A_BV);
-   // state_change(&encoder_data[1],astat,bstat);
-
-//    if(astat)
-//    {
-//        GPIOB_ITModeCfg(ROTARY_ENCODER_B_A_BV,GPIO_ITMode_FallEdge);
-//    }else {
-//        GPIOB_ITModeCfg(ROTARY_ENCODER_B_A_BV,GPIO_ITMode_RiseEdge);
-//    }
+    state_change(&encoder_data[1],astat,bstat);
+    if(astat)
+    {
+        GPIOB_ITModeCfg(ROTARY_ENCODER_B_A_BV,GPIO_ITMode_FallEdge);
+    }else {
+        GPIOB_ITModeCfg(ROTARY_ENCODER_B_A_BV,GPIO_ITMode_RiseEdge);
     }
-    GPIOB_ClearITFlagBit(0xffff);
+    }
 }

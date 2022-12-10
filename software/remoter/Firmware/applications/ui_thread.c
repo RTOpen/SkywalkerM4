@@ -37,7 +37,7 @@ static void ui_update(void)
         if(data.channels[i] != radio.channels[i])
         {
             data.channels[i] = radio.channels[i];
-            rt_sprintf(disp_buffer,"%s:%d",channel_name[i],data.channels[i]);
+            rt_sprintf(disp_buffer,"%s:% 4d",channel_name[i],data.channels[i]);
             lcd_draw_text(40,30+i*20,disp_buffer,gui_color,gui_bgcolor);
         }
     }

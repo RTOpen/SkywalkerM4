@@ -22,6 +22,7 @@ typedef enum
  ADC_CHANNEL_4,
  ADC_CHANNEL_5,
  ADC_CHANNEL_TEMP,
+ ADC_CHANNEL_MAX,
 }adc_channel_t;
 
 /**************************************************************************************************
@@ -33,13 +34,17 @@ typedef enum
  */
 
 /**
- * @brief   Initialize the adc Service
+ * @brief   Initialize the adc
  */
 void adc_hw_init(void);
 
+/**
+ * @brief   start adc multi channel convert
+ */
+void adc_multi_convert(void);
 
 /**
- * @brief   Read the Key status
+ * @brief   Read adc value
  */
 uint16_t adc_read(uint8_t ch);
 

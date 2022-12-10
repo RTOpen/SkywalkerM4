@@ -420,9 +420,8 @@ int usb_dc_init(void)
  * @param[in]        None
  * @retval           None
  */
-__attribute__((interrupt("WCH-Interrupt-fast")))
-__attribute__((section(".highcode"))) void
-USBD_IRQHandler(void)
+__attribute__((section(".highcode")))
+void USBD_IRQHandler(void)
 {
     volatile uint8_t intflag = 0;
     intflag = CH58x_USBFS_DEV->USB_INT_FG;
