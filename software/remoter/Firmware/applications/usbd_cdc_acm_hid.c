@@ -167,17 +167,6 @@ static const uint8_t hid_joystick_report_desc[HID_JOYSTICK_REPORT_DESC_SIZE]  =
 };
 
 
-/*!< mouse report struct */
-struct hid_mouse {
-    uint8_t buttons;
-    int8_t x;
-    int8_t y;
-    int8_t wheel;
-};
-
-/*!< mouse report */
-static struct hid_mouse mouse_cfg;
-
 #define HID_STATE_IDLE 0
 #define HID_STATE_BUSY 1
 
@@ -264,30 +253,24 @@ void cdc_acm_hid_init(void)
     usbd_add_endpoint(&cdc_out_ep);
     usbd_add_endpoint(&cdc_in_ep);
 
-//    usbd_add_interface(usbd_hid_init_intf(&intf2, hid_mouse_report_desc, HID_MOUSE_REPORT_DESC_SIZE));
-//    usbd_add_endpoint(&hid_in_ep);
-
-    /*!< init mouse report data */
-    mouse_cfg.buttons = 0;
-    mouse_cfg.wheel = 0;
-    mouse_cfg.x = 0;
-    mouse_cfg.y = 0;
+    usbd_add_interface(usbd_hid_init_intf(&intf2, hid_joystick_report_desc, HID_JOYSTICK_REPORT_DESC_SIZE));
+    usbd_add_endpoint(&hid_in_ep);
 
     usbd_initialize();
 }
 
 /**
-  * @brief            hid mouse test
+  * @brief            usbd_hid_send_report
   * @pre              none
   * @param[in]        none
   * @retval           none
   */
-void usbd_hid_data_send(void)
+void usbd_hid_send_report(uint8_t *data,uint16_t len)
 {
 
     if(hid_state != HID_STATE_BUSY)
     {
-    int ret = usbd_ep_start_write(HID_INT_EP, (uint8_t *)&mouse_cfg, 4);
+    int ret = usbd_ep_start_write(HID_INT_EP, data, len);
     if (ret < 0) {
         return;
     }

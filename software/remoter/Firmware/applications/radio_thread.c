@@ -3,7 +3,7 @@
 
 #define RADIO_THREAD_STACK_SIZE        (1024)
 
-#define RADIO_THREAD_PRIORITY          (9)
+#define RADIO_THREAD_PRIORITY          (7)
 
 static struct rt_thread radio_thread;
 

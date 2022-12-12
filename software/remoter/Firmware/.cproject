@@ -144,8 +144,11 @@
 					</folderInfo>
 					<fileInfo id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1008047074.1315139350" name="usbh_hid.h" rcbsApplicability="disable" resourcePath="CherryUSB/class/hid/usbh_hid.h" toolsToInvoke=""/>
 					<fileInfo id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1008047074.1927136374" name="usbh_cdc_acm.h" rcbsApplicability="disable" resourcePath="CherryUSB/class/cdc/usbh_cdc_acm.h" toolsToInvoke=""/>
+					<fileInfo id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1008047074.648678188" name="drv_i2c.c" rcbsApplicability="disable" resourcePath="drivers/drv_i2c.c" toolsToInvoke="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1731377187.673358699">
+						<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1731377187.673358699" name="GNU RISC-V Cross C Compiler" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1731377187"/>
+					</fileInfo>
 					<sourceEntries>
-						<entry excluding="applications/usbd_cdc_acm_hid.c|CherryUSB|ble_lib|rt-thread|src/Mainee.c|Ld|RVMSIS|Startup|StdPeriphDriver" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="applications/cdc_acm_template.c|CherryUSB|ble_lib|rt-thread|src/Mainee.c|Ld|RVMSIS|Startup|StdPeriphDriver" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="osal|packet capture|port/ch32/usb_dc_usbfs.c|port/ch32/usb_dc_usbhs.c|port/musb|port/hpm|port/fsdev|port/ehci|port/nrf5x|port/rp2040|port/template|port/xhci|port/dwc2|port/bouffalolab|demo|core/usbh_core.c|class/hid/usbh_hid.h|class/hid/usbh_hid.c|class/cdc/usbh_cdc_acm.h|class/cdc/usbh_cdc_acm.c|class/dfu|class/hub|class/midi|class/msc|class/mtp|class/printer|class/template|class/vendor|class/video|class/wireless|class/audio|tools|third_party" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CherryUSB"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="RVMSIS"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="StdPeriphDriver"/>

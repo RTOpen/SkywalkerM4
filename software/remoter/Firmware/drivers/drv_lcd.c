@@ -499,11 +499,11 @@ void lcd_draw_image(const unsigned char* pic,uint16_t x, uint16_t y, uint16_t wi
        if(len > BUFFER_SIZE)
        {
            memcpy(lcd_buffer,color,BUFFER_SIZE*2);
-           LCD_SPIDMATrans((uint8_t*)color, BUFFER_SIZE*2);
+           LCD_SPIDMATrans((uint8_t*)lcd_buffer, BUFFER_SIZE*2);
        }else
            {
            memcpy(lcd_buffer,color,len*2);
-           LCD_SPIDMATrans((uint8_t*)color, len*2);
+           LCD_SPIDMATrans((uint8_t*)lcd_buffer, len*2);
            }
      len -=BUFFER_SIZE;
      color+=BUFFER_SIZE;
@@ -850,6 +850,7 @@ void lcd_draw_char(uint16_t x, uint16_t y, const uint8_t ch,uint16_t fgcolor,uin
   uint8_t offset;
   uint8_t *pchar;
   uint8_t *data;
+  uint8_t cmd[4];
   uint32_t line;
   if(default_font == NULL)
       return;
@@ -883,15 +884,35 @@ void lcd_draw_char(uint16_t x, uint16_t y, const uint8_t ch,uint16_t fgcolor,uin
     {
       if(line & (1 << (width- j + offset- 1))) 
       {
-        lcd_draw_pixel((x + j), y, fgcolor);
+         lcd_buffer[j + i * width] = fgcolor;
       }
       else
       {
-        lcd_draw_pixel((x + j), y, bgcolor);
+        lcd_buffer[j + i * width] = bgcolor;
       } 
     }
     y++;
   }
+  /*Column addresses*/
+  LCD_WRITE_REG(0x2A);
+  cmd[0] = (x >> 8) & 0xFF;
+  cmd[1] = x & 0xFF;
+  cmd[2] = ((x+width-1) >> 8) & 0xFF;
+  cmd[3] = (x+width-1) & 0xFF;
+  lcd_write_datas(cmd, 4);
+
+  /*Page addresses*/
+  LCD_WRITE_REG(0x2B);
+  cmd[0] = ((y) >> 8) & 0xFF;
+  cmd[1] = (y) & 0xFF;
+  cmd[2] = ((y+height - 1) >> 8) & 0xFF;
+  cmd[3] = (y+height - 1) & 0xFF;
+  lcd_write_datas(cmd, 4);
+
+    /*Memory write*/
+  LCD_WRITE_REG(0x2C);
+  LCD_SPIDMATrans(lcd_buffer, width*height*2);
+
 }
 
 

@@ -1,5 +1,6 @@
 #include "threads.h"
 #include "drv_buzzer.h"
+#include "radio.h"
 #include "tones.h"
 
 #define T 1000
@@ -14,6 +15,8 @@ ALIGN(RT_ALIGN_SIZE)
 static rt_uint8_t tone_play_thread_stack[TONE_THREAD_STACK_SIZE];
 
 static struct rt_event tone_event;
+
+static rt_uint8_t tone_id = 0;
 
 static const tone_t poweron_tones[] = 
     {
@@ -93,16 +96,44 @@ static void tone_play_thread_entry(void *parameter)
                           RT_WAITING_FOREVER, &evt);
         if(ret == RT_EOK)
         {
+        switch(tone_id)
+        {
+        case TONE_POWER_ON:
+            play_tones(poweron_tones,sizeof(poweron_tones)/sizeof(tone_t),128);
+            break;
+        case TONE_POWER_OFF:
+            play_tones(poweroff_tones,sizeof(poweroff_tones)/sizeof(tone_t),128);
+            break;
+        case TONE_BTN_CLICK:
+            play_tones(btn_click_tones,sizeof(btn_click_tones)/sizeof(tone_t),128);
+            break;
+        case TONE_WARNING:
+            play_tones(warning_tones,sizeof(warning_tones)/sizeof(tone_t),128);
+            break;
         
-            
-            
+        case TONE_CALIBRA_STEP1:
+            play_tones(calibra_step1_tones,sizeof(calibra_step1_tones)/sizeof(tone_t),128);
+            break;
+        case TONE_CALIBRA_STEP2:
+            play_tones(calibra_step2_tones,sizeof(calibra_step2_tones)/sizeof(tone_t),128);
+            break;
+        case TONE_CALIBRA_STEP3:
+            play_tones(calibra_step3_tones,sizeof(calibra_step3_tones)/sizeof(tone_t),128);
+            break;
+        default:
+            break;
+        }
         }
      
 
     }
 }
 
-
+void tones_play_background(uint8_t id)
+{
+    tone_id = id;
+    rt_event_send(&tone_event, 0x01);
+}
 int tone_play_thread_init(void)
 {
     rt_err_t result = RT_EOK;
