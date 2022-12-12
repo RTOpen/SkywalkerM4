@@ -5,10 +5,12 @@
 #include "radio.h"
 #include "params.h"
 
+static uint8_t HID_Buffer[19];
+
 /*********************************************************************
  * @fn      main
  *
- * @brief   Ö÷º¯Êý
+ * @brief   ä¸»å‡½æ•°
  *
  * @note    main is one of threads in rt-thread.
  *
@@ -16,9 +18,8 @@
  */
 int main()
 {
-    static uint8_t HID_Buffer[19];
     uint16_t channels[CHANNEL_MAX]={0};
-    params_init();
+//    params_init();
     adc_hw_init();
     cdc_acm_hid_init();
     led_hw_init();
@@ -31,14 +32,13 @@ int main()
 
     while(1)
     {
-        adc_multi_convert();
         channels[ROLL] = adc_read(ADC_CHANNEL_4);
         channels[PITCH] = adc_read(ADC_CHANNEL_3);
         channels[YAW] = adc_read(ADC_CHANNEL_2);
         channels[THROTTLE] = adc_read(ADC_CHANNEL_1);
         channels[AUX1] = adc_read(ADC_CHANNEL_5);
-        channels[AUX2] = encoder_read_pos(ROTARY_ENCODER_A);// = adc_read(ADC_CHANNEL_TEMP);
-        channels[AUX3] = encoder_read_pos(ROTARY_ENCODER_B);
+        // channels[ROLL] = encoder_read_pos(ROTARY_ENCODER_A);// = adc_read(ADC_CHANNEL_TEMP);
+        // channels[PITCH] = encoder_read_pos(ROTARY_ENCODER_B);
         channels[AUX4]++;
         for (int i = 0; i < CHANNEL_MAX; ++i) {
             radio.channels[i] = channels[i];
@@ -68,10 +68,11 @@ int main()
           else if ( value < 0 ) value = 0;
           HID_Buffer[i*2 +3] = (value & 0xFF);
           HID_Buffer[i*2 +4] = ((value >> 8) & 0x07);
-
         }
+        // usbd_hid_data_send(HID_Buffer, sizeof(HID_Buffer));
         rt_thread_mdelay(20);
     }
+
     return 0;
 }
 
@@ -81,4 +82,15 @@ void msh_test_print(void)
 }
 MSH_CMD_EXPORT(msh_test_print, this is a msh test);
 
-
+static void hid_send(void)
+{
+    if (usbd_hid_data_send(HID_Buffer, sizeof(HID_Buffer)))
+    {
+        rt_kprintf("send failure\n");
+    }
+    else
+    {
+        rt_kprintf("send successful\n");
+    }
+}
+MSH_CMD_EXPORT(hid_send, hid send test);

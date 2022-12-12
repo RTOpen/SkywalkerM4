@@ -218,7 +218,7 @@ void usbd_configure_done_callback(void)
 void usbd_cdc_acm_bulk_out(uint8_t ep, uint32_t nbytes)
 {
     USB_LOG_RAW("actual out len:%d\r\n", nbytes);
-    
+
     /* setup next out ep read transfer */
     usbd_ep_start_read(CDC_OUT_EP, read_buffer, BUFFER_SIZE);
 }
@@ -253,10 +253,10 @@ struct usbd_interface intf2;
 void cdc_acm_hid_init(void)
 {
     rt_sem_init(&cdc_tx_sem,"cdc_tx",1,RT_IPC_FLAG_FIFO);
-    
+
     //rt_ringbuffer_init(&rb_cdc_tx,cdc_tx_buffer,sizeof(cdc_tx_buffer));
     //rt_ringbuffer_init(&rb_cdc_rx,cdc_rx_buffer,sizeof(cdc_rx_buffer));
-    
+
     usbd_desc_register(cdc_acm_hid_descriptor);
 
     usbd_add_interface(usbd_cdc_acm_init_intf(&intf0));
@@ -264,8 +264,8 @@ void cdc_acm_hid_init(void)
     usbd_add_endpoint(&cdc_out_ep);
     usbd_add_endpoint(&cdc_in_ep);
 
-//    usbd_add_interface(usbd_hid_init_intf(&intf2, hid_mouse_report_desc, HID_MOUSE_REPORT_DESC_SIZE));
-//    usbd_add_endpoint(&hid_in_ep);
+    usbd_add_interface(usbd_hid_init_intf(&intf2, hid_joystick_report_desc, HID_JOYSTICK_REPORT_DESC_SIZE));
+    usbd_add_endpoint(&hid_in_ep);
 
     /*!< init mouse report data */
     mouse_cfg.buttons = 0;
@@ -282,17 +282,19 @@ void cdc_acm_hid_init(void)
   * @param[in]        none
   * @retval           none
   */
-void usbd_hid_data_send(void)
+int usbd_hid_data_send(uint8_t *buffer, int size)
 {
-
-    if(hid_state != HID_STATE_BUSY)
+    if (hid_state != HID_STATE_BUSY)
     {
-    int ret = usbd_ep_start_write(HID_INT_EP, (uint8_t *)&mouse_cfg, 4);
-    if (ret < 0) {
-        return;
+        int ret = usbd_ep_start_write(HID_INT_EP, buffer, size);
+        if (ret < 0) {
+            return -1;
+        }
+        hid_state = HID_STATE_BUSY;
+        return 0;
     }
-    hid_state = HID_STATE_BUSY;
-    }
+
+    return -1;
 }
 
 volatile uint8_t dtr_enable = 0;
