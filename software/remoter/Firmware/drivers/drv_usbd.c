@@ -21,5 +21,6 @@ int usbd_hw_init(void)
 
  void usb_dc_low_level_init(void)
 {
-     usbd_hw_init();
+     rt_thread_delay(1);
+     PFIC_EnableIRQ(USB_IRQn);
 }

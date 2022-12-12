@@ -123,7 +123,7 @@
 #define BLE_TX_NUM_EVENT                    1
 #endif
 #ifndef BLE_TX_POWER
-#define BLE_TX_POWER                        LL_TX_POWEER_0_DBM
+#define BLE_TX_POWER                        LL_TX_POWEER_6_DBM
 #endif
 #ifndef PERIPHERAL_MAX_CONNECTION
 #define PERIPHERAL_MAX_CONNECTION           1

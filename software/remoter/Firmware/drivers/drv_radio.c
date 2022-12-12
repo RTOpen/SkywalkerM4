@@ -200,7 +200,7 @@ void radio_hw_init(void)
     tmos_memset(&rfConfig, 0, sizeof(rfConfig_t));
     taskID = TMOS_ProcessEventRegister(RF_ProcessEvent);
     rfConfig.accessAddress = 0x71764129; // 禁止使用0x55555555以及0xAAAAAAAA ( 建议不超过24次位反转，且不超过连续的6个0或1 )
-    rfConfig.CRCInit = 0x555555;
+    rfConfig.CRCInit = 0x666666;
     rfConfig.ChannelMap = 0xFFFFFFFF;
     rfConfig.LLEMode = LLE_MODE_AUTO;
     rfConfig.rfStatusCB = RF_2G4StatusCallBack;
