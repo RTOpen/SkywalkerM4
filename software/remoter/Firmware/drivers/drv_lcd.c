@@ -54,8 +54,9 @@ static void SPI_Configuration(void)
     R8_SPI0_CTRL_MOD =  RB_SPI_MST_SCK_MOD|RB_SPI_MOSI_OE | RB_SPI_SCK_OE;
     R8_SPI0_CTRL_CFG |= RB_SPI_AUTO_IF;     // 访问BUFFER/FIFO自动清除IF_BYTE_END标志
     R8_SPI0_CTRL_CFG &= ~RB_SPI_DMA_ENABLE; // 不启动DMA方式
-}
 
+}
+//#define LCD_SPIDMATrans SPI0_MasterDMATrans
 void LCD_SPIDMATrans(uint8_t *data, uint16_t len)
 {
     R8_SPI0_CTRL_MOD &= ~RB_SPI_FIFO_DIR;
@@ -66,7 +67,6 @@ void LCD_SPIDMATrans(uint8_t *data, uint16_t len)
     R8_SPI0_CTRL_CFG |= RB_SPI_DMA_ENABLE;
     SPI0_ITCfg(1,SPI0_IT_DMA_END);
     PFIC_EnableIRQ(SPI0_IRQn);
-
     rt_sem_take(&wait_sem, RT_WAITING_FOREVER);
 
 }
@@ -192,7 +192,7 @@ void lcd_hw_init(void)
   GPIO_Configuration();
   SPI_Configuration();
   lcd_reg_init();
-  lcd_fill_rect(0,0,240,240,0x2AD3);
+  lcd_fill_rect(0,0,240,240,0xFFFF);
 }
 
 /**
@@ -516,6 +516,8 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
   if (x >= LCD_PIXEL_WIDTH) return;
   if (y >= LCD_PIXEL_HEIGHT) return;
  
+  uint16_t style_color = 0;
+  int total_len = 0;
   uint16_t x1 = x,x2 = x + width-1;
   uint16_t y1 = y,y2 = y + height-1;  
   uint16_t *color =  (uint16_t *)pic;
@@ -553,7 +555,7 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-  LCD_SPIDMATrans(lcd_buffer,r*r*2);
+  LCD_SPIDMATrans((uint8_t*)lcd_buffer,r*r*2);
   
     //copy data top right
   for(int i = 0;i< r;i++)
@@ -583,7 +585,7 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-  LCD_SPIDMATrans(lcd_buffer,r*r*2);
+  LCD_SPIDMATrans((uint8_t*)lcd_buffer,r*r*2);
    
   //copy data bottom left
   for(int i = 0;i< r;i++)
@@ -613,7 +615,7 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-  LCD_SPIDMATrans(lcd_buffer,r*r*2);
+  LCD_SPIDMATrans((uint8_t*)lcd_buffer,r*r*2);
  
   //copy data bottom right
   for(int i = 0;i< r;i++)
@@ -641,16 +643,17 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
   data[3] = y2 & 0xFF;
   lcd_write_datas(data, 4);
 
-    /*Memory write*/
-  LCD_SPIDMATrans(lcd_buffer,r*r*2);
+  /*Memory write*/
+  LCD_WRITE_REG(0x2C);
+  LCD_SPIDMATrans((uint8_t*)lcd_buffer,r*r*2);
  
+  style_color = lcd_buffer[0];
   //copy data top
   uint16_t line_len = (src_w - 2*r);
   uint16_t data_h = r;
-  for(int i = 0;i< data_h;i++)
+  for(int i = 0;i< BUFFER_SIZE ;i++)
   {
-    color = (uint16_t *)&pic[(i*src_w+r) * 2];
-    memcpy(&lcd_buffer[i*line_len],color,line_len*sizeof(uint16_t));
+    lcd_buffer[i]= style_color;
   }
 
   x1 = x + r;
@@ -675,21 +678,19 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-  LCD_SPIDMATrans(lcd_buffer,r*r*2);
-	for(int i=0;i < r;i++) {
-       for(int j= 0;j < (width - 2*r);j++)
-        {
-        LCD_WRITE_COLOR(lcd_buffer[(i%data_h)*line_len+j%line_len]);
-        }
-	}
-    
-  //copy data bottom
-  line_len = (src_w - 2*r);
-  data_h = r;
-  for(int i = 0;i< data_h;i++)
+
+  total_len = r*(width - 2*r);
+  while(total_len > 0)
   {
-    color = (uint16_t *)&pic[((src_h - r + i)*src_w+r) * 2];
-    memcpy(&lcd_buffer[i*line_len],color,line_len*sizeof(uint16_t));
+      if(total_len > BUFFER_SIZE)
+      {
+          LCD_SPIDMATrans((uint8_t*)lcd_buffer, BUFFER_SIZE*2);
+      }else
+          {
+          LCD_SPIDMATrans((uint8_t*)lcd_buffer, total_len*2);
+          }
+      total_len -=BUFFER_SIZE;
+
   }
 
   x1 = x + r;
@@ -714,61 +715,22 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-	for(int i=0;i < r;i++) {
-       for(int j= 0;j < (width - 2*r);j++)
-        {
-        LCD_WRITE_COLOR(lcd_buffer[(i%data_h)*line_len+j%line_len]);
-        }
-	}
-    
-   //copy data left
-  line_len = r;
-  data_h = (src_h - 2*r);
-  for(int i = 0;i< data_h;i++)
+
+  total_len = r*(width - 2*r);
+  while(total_len > 0)
   {
-    color = (uint16_t *)&pic[((r+i)*src_w) * 2];
-    memcpy(&lcd_buffer[i*line_len],color,line_len*sizeof(uint16_t));
+      if(total_len > BUFFER_SIZE)
+      {
+          LCD_SPIDMATrans((uint8_t*)lcd_buffer, BUFFER_SIZE*2);
+      }else
+          {
+          LCD_SPIDMATrans((uint8_t*)lcd_buffer, total_len*2);
+          }
+      total_len -=BUFFER_SIZE;
+
   }
 
   x1 = x;
-  x2 = x + r -1;
-  y1 = y + r;
-  y2 = y + height - r -1;
-  /*Column addresses*/
-  LCD_WRITE_REG(0x2A);
-  data[0] = (x1 >> 8) & 0xFF;
-  data[1] = x1 & 0xFF;
-  data[2] = (x2 >> 8) & 0xFF;
-  data[3] = x2 & 0xFF;
-  lcd_write_datas(data, 4);
-
-  /*Page addresses*/
-  LCD_WRITE_REG(0x2B);
-  data[0] = (y1 >> 8) & 0xFF;
-  data[1] = y1 & 0xFF;
-  data[2] = (y2 >> 8) & 0xFF;
-  data[3] = y2 & 0xFF;
-  lcd_write_datas(data, 4);
-
-    /*Memory write*/
-  LCD_WRITE_REG(0x2C);
-	for(int i=0;i < (height - 2*r);i++) {
-       for(int j= 0;j < r;j++)
-        {
-        LCD_WRITE_COLOR(lcd_buffer[(i%data_h)*line_len+j%line_len]);
-        }
-	}
- 
-   //copy data right
-  line_len = r;
-  data_h = (src_h - 2*r);
-  for(int i = 0;i< data_h;i++)
-  {
-    color = (uint16_t *)&pic[((r+i+1)*src_w-r) * 2];
-    memcpy(&lcd_buffer[i*line_len],color,line_len*sizeof(uint16_t));
-  }
-
-  x1 = x + width - r;
   x2 = x + width -1;
   y1 = y + r;
   y2 = y + height - r -1;
@@ -790,50 +752,19 @@ void lcd_draw_image9patch(const unsigned char* pic,uint16_t src_w,uint16_t src_h
 
     /*Memory write*/
   LCD_WRITE_REG(0x2C);
-	for(int i=0;i < (height - 2*r);i++) {
-       for(int j= 0;j < r;j++)
-        {
-        LCD_WRITE_COLOR(lcd_buffer[(i%data_h)*line_len+j%line_len]);
-        }
-	}
-    
-   //copy data main
-  line_len = (src_w - 2*r);
-  data_h = (src_h - 2*r);
-  for(int i = 0;i< data_h;i++)
+  total_len = (height - 2*r)*width;
+  while(total_len > 0)
   {
-    color = (uint16_t *)&pic[((r+i)*src_w + r) * 2];
-    memcpy(&lcd_buffer[i*line_len],color,line_len*sizeof(uint16_t));
+      if(total_len > BUFFER_SIZE)
+      {
+          LCD_SPIDMATrans((uint8_t*)lcd_buffer, BUFFER_SIZE*2);
+      }else
+          {
+          LCD_SPIDMATrans((uint8_t*)lcd_buffer, total_len*2);
+          }
+      total_len -=BUFFER_SIZE;
+
   }
-
-  x1 = x + r;
-  x2 = x + width - r -1;
-  y1 = y + r;
-  y2 = y + height - r -1;
-  /*Column addresses*/
-  LCD_WRITE_REG(0x2A);
-  data[0] = (x1 >> 8) & 0xFF;
-  data[1] = x1 & 0xFF;
-  data[2] = (x2 >> 8) & 0xFF;
-  data[3] = x2 & 0xFF;
-  lcd_write_datas(data, 4);
-
-  /*Page addresses*/
-  LCD_WRITE_REG(0x2B);
-  data[0] = (y1 >> 8) & 0xFF;
-  data[1] = y1 & 0xFF;
-  data[2] = (y2 >> 8) & 0xFF;
-  data[3] = y2 & 0xFF;
-  lcd_write_datas(data, 4);
-
-    /*Memory write*/
-  LCD_WRITE_REG(0x2C);
-	for(int i=0;i < (height - 2*r);i++) {
-       for(int j= 0;j < (width - 2*r);j++)
-        {
-        LCD_WRITE_COLOR(lcd_buffer[(i%data_h)*line_len+j%line_len]);
-        }
-	}
   
 }
 
@@ -891,7 +822,6 @@ void lcd_draw_char(uint16_t x, uint16_t y, const uint8_t ch,uint16_t fgcolor,uin
         lcd_buffer[j + i * width] = bgcolor;
       } 
     }
-    y++;
   }
   /*Column addresses*/
   LCD_WRITE_REG(0x2A);

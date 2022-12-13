@@ -21,7 +21,7 @@ static void led_thread_entry(void *parameter)
     rt_err_t ret = RT_EOK;
     rt_uint32_t timeout = 100;
     rt_uint32_t update = 0;
-    led_on(LED_2);
+    led_on(LED_1);
 
     while(1)
     {
@@ -36,7 +36,7 @@ static void led_thread_entry(void *parameter)
         }
         if(rt_tick_get() - update >500)
         {
-           led_toggle(LED_1);
+           led_toggle(LED_2);
         }
     }
 }

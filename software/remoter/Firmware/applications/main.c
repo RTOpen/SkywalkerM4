@@ -20,7 +20,7 @@ int main()
     uint16_t channels[CHANNEL_MAX]={0};
     params_init();
     adc_hw_init();
-    cdc_acm_hid_init();
+    //cdc_acm_hid_init();
     led_hw_init();
     lcd_hw_init();
     //buzzer_hw_init();
