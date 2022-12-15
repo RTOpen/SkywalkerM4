@@ -56,7 +56,7 @@ static void ui_thread_entry(void *parameter)
     while(1)
     {
      ui_update();
-     rt_thread_mdelay(20);
+     rt_thread_mdelay(30);
     }
 }
 

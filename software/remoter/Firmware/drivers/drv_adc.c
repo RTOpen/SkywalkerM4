@@ -21,6 +21,17 @@ static int16_t RoughCalib_Value;
 static struct rt_semaphore wait_sem;
 static uint8_t conver_index = 0;
 
+static uint16_t ADC_SingleConver(void)
+{
+    R8_ADC_CONVERT = RB_ADC_START;
+    while(R8_ADC_CONVERT & RB_ADC_START)
+    {
+        rt_thread_delay(1);
+    }
+
+    return (R16_ADC_DATA & RB_ADC_DATA);
+}
+
 /**************************************************************************************************
  * @fn      adc_hw_init
  *
@@ -40,7 +51,7 @@ void adc_hw_init(void)
     ADC_ExtSingleChSampInit(SampleFreq_8, ADC_PGA_1_2);
     RoughCalib_Value = ADC_DataCalib_Rough(); // 用于计算ADC内部偏差，记录到全局变量 RoughCalib_Value中
     rt_sem_init(&wait_sem, "adc_wait", 0x00, RT_IPC_FLAG_FIFO);
-    PFIC_EnableIRQ(ADC_IRQn);
+    //PFIC_EnableIRQ(ADC_IRQn);
 }
 
 
@@ -64,15 +75,20 @@ uint16_t adc_read(uint8_t ch)
     }
     return adc_value;
 }
+
 void adc_multi_convert(void)
 {
     conver_index = 0;
-    ADC_ChannelCfg(adc_channel_map[conver_index]);
-    ADC_ClearITFlag();
-    ADC_StartUp();
-
-    rt_sem_take(&wait_sem, 20);
+//    ADC_ChannelCfg(adc_channel_map[conver_index]);
+//    ADC_ClearITFlag();
+//    ADC_StartUp();
+    for (conver_index = 0; conver_index < ADC_CHANNEL_MAX; ++conver_index) {
+        ADC_ChannelCfg(adc_channel_map[conver_index]);
+        adc_buffer[conver_index] = ADC_SingleConver();
+    }
+    //rt_sem_take(&wait_sem, 20);
 }
+
 /*********************************************************************
  * @fn      ADC_IRQHandler
  *

@@ -3,7 +3,6 @@
 
 #define PARAMS_MAGIC     0x4643
 
-#define JOYSTICK_DEFAULT_VALUE  1000
 
 #define EEPROM_USER_START_ADDR   0
 
@@ -51,7 +50,7 @@ rt_err_t params_is_valid(params_t * params)
     //量程有效性检查
     for (uint8_t i = 0;i < JOYSTICK_ADC_MAX_CHANNELS;i++)
     {
-        if (params->min_value[i] < 100 || params->max_value[i] > 3300)
+        if (params->min_value[i] < 100 || params->max_value[i] > 4095)
         {
             return RT_ERROR;
         }
@@ -87,14 +86,14 @@ void params_load_default(params_t * params)
     {
         if (i < JOYSTICK_ADC_MAX_CHANNELS)
         {//模拟量通道（摇杆）
-            params->min_value[i] = JOYSTICK_DEFAULT_VALUE;
-            params->mid_value[i] = JOYSTICK_DEFAULT_VALUE;
-            params->max_value[i] = JOYSTICK_DEFAULT_VALUE;
+            params->min_value[i] = RADIO_RANGE_MIN_VALUE;
+            params->mid_value[i] = RADIO_RANGE_MID_VALUE;
+            params->max_value[i] = RADIO_RANGE_MAX_VALUE;
         }
         else
         {//数字量通道（按键）
-            params->min_value[i] = RADIO_RANGE_MIN_VALUE;
-            params->max_value[i] = RADIO_RANGE_MAX_VALUE;
+            params->min_value[i] = 1000;
+            params->max_value[i] = 2000;
         }
     }
     

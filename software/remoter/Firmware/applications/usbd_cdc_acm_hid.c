@@ -13,7 +13,7 @@
 /*!< endpoint address */
 #define HID_INT_EP          0x83
 #define HID_INT_EP_SIZE     19
-#define HID_INT_EP_INTERVAL 1
+#define HID_INT_EP_INTERVAL 10
 
 #define USBD_VID           0x0483
 #define USBD_PID           0x0110

@@ -13,9 +13,6 @@ static struct rt_event wait_event;
 ALIGN(RT_ALIGN_SIZE)
 uint16_t lcd_buffer[BUFFER_SIZE];
 
-
-
-
 void LCD_WRITE_REG(uint8_t data)
 { 
 	LCD_DC_LOW();
@@ -47,7 +44,7 @@ static void SPI_Configuration(void)
     R8_SPI0_CTRL_CFG |= RB_SPI_AUTO_IF;     // 访问BUFFER/FIFO自动清除IF_BYTE_END标志
     R8_SPI0_CTRL_CFG &= ~RB_SPI_DMA_ENABLE; // 不启动DMA方式
     //PFIC_SetPriority(SPI0_IRQn,0x05);
-    PFIC_EnableIRQ(SPI0_IRQn);
+    //PFIC_EnableIRQ(SPI0_IRQn);
 }
 //#define  LCD_SPIDMATrans SPI0_MasterDMATrans
 void LCD_SPIDMATrans(uint8_t *data, uint16_t len)
@@ -76,14 +73,14 @@ void LCD_SPIDMATrans(uint8_t *data, uint16_t len)
 //    rt_event_recv(&wait_event,0xffff,RT_EVENT_FLAG_CLEAR|RT_EVENT_FLAG_OR, RT_WAITING_FOREVER,&evt);
 }
 
-__HIGH_CODE
-void SPI0_IRQHandler(void)
-{
-    R8_SPI0_INTER_EN = 0;
-    R8_SPI0_CTRL_CFG &= ~RB_SPI_DMA_ENABLE;
-    R8_SPI0_INT_FLAG |= RB_SPI_IF_DMA_END;
-    rt_event_send(&wait_event,0x01);
-}
+//__HIGH_CODE
+//void SPI0_IRQHandler(void)
+//{
+//    R8_SPI0_INTER_EN = 0;
+//    R8_SPI0_CTRL_CFG &= ~RB_SPI_DMA_ENABLE;
+//    R8_SPI0_INT_FLAG |= RB_SPI_IF_DMA_END;
+//    rt_event_send(&wait_event,0x01);
+//}
 
 static void lcd_reg_init(void)
 {

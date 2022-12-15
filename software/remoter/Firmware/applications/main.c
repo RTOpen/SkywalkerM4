@@ -16,8 +16,6 @@
  */
 int main()
 {
-    static uint8_t HID_Buffer[19];
-
     params_init();
     adc_hw_init();
     cdc_acm_hid_init();
@@ -27,38 +25,11 @@ int main()
     encoder_hw_init();
     //tone_play_thread_init();
     led_thread_init();
+    radio_thread_init();
     ui_thread_init();
-
     while(1)
     {
 
-        //buttons
-        HID_Buffer[0] = 0;
-        HID_Buffer[1] = 0;
-        HID_Buffer[2] = 0;
-//        for (int i = 0; i < 8; ++i) {
-//          if ( channels[i+8] > 0 ) {
-//            HID_Buffer[0] |= (1 << i);
-//          }
-//          if ( channels[i+16] > 0 ) {
-//            HID_Buffer[1] |= (1 << i);
-//          }
-//          if ( channels[i+24] > 0 ) {
-//            HID_Buffer[2] |= (1 << i);
-//          }
-//        }
-
-        //analog values
-        //uint8_t * p = HID_Buffer + 1;
-//        for (int i = 0; i < CHANNEL_MAX; ++i) {
-//
-//          int16_t value = channels[i] + 1024;
-//          if ( value > 2047 ) value = 2047;
-//          else if ( value < 0 ) value = 0;
-//          HID_Buffer[i*2 +3] = (value & 0xFF);
-//          HID_Buffer[i*2 +4] = ((value >> 8) & 0x07);
-//
-//        }
         rt_thread_mdelay(20);
     }
     return 0;
