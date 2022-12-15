@@ -16,8 +16,8 @@
 
 static rt_uint32_t _SysTick_Config(rt_uint32_t ticks)
 {
-    PFIC_SetPriority(SysTick_IRQn,0xf0);
-    PFIC_SetPriority(SWI_IRQn,0xf0);
+    PFIC_SetPriority(SysTick_IRQn,0x00);
+    PFIC_SetPriority(SWI_IRQn,0x00);
     PFIC_EnableIRQ(SysTick_IRQn);
     PFIC_EnableIRQ(SWI_IRQn);
     SysTick->CTLR=0;

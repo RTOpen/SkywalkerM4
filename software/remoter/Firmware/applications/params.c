@@ -74,18 +74,6 @@ rt_err_t params_is_valid(params_t * params)
     return RT_EOK;
 }
 
-//更新摇杆最大最小值
-void params_update_range_min_max(uint8_t chan,uint16_t value)
-{
-    params.min_value[chan] = params.min_value[chan] > value ? value : params.min_value[chan];
-    params.max_value[chan] = params.max_value[chan] < value ? value : params.max_value[chan];
-}
-
-//更新中间位置值
-void params_update_range_mid(uint8_t chan,uint16_t value)
-{
-    params.mid_value[chan] = value;
-}
 
 
 //恢复遥控器参数出厂设置
@@ -105,8 +93,8 @@ void params_load_default(params_t * params)
         }
         else
         {//数字量通道（按键）
-            params->min_value[i] = RC_RANGE_MIN_VALUE;
-            params->max_value[i] = RC_RANGE_MAX_VALUE;
+            params->min_value[i] = RADIO_RANGE_MIN_VALUE;
+            params->max_value[i] = RADIO_RANGE_MAX_VALUE;
         }
     }
     

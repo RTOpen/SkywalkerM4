@@ -4,10 +4,10 @@
 #include "board.h"
 
 #define MAX_RC_CHANNELS     (8)  //遥控器最大通道数
-#define JOYSTICK_ADC_MAX_CHANNELS (4)
-#define RC_RANGE_MAX_VALUE  2000 //遥控器量程最大值
-#define RC_RANGE_MID_VALUE  1000 //遥控器量程中间值
-#define RC_RANGE_MIN_VALUE  0    //遥控器量程最小值
+#define JOYSTICK_ADC_MAX_CHANNELS  4
+#define RADIO_RANGE_MAX_VALUE  3700 //遥控器量程最大值
+#define RADIO_RANGE_MID_VALUE  2500 //遥控器量程中间值
+#define RADIO_RANGE_MIN_VALUE  1300 //遥控器量程最小值
 
 #define RC_MODE_AMERICAN  0  //美国手
 #define RC_MODE_JAPAN     1  //日本手
@@ -31,9 +31,6 @@ typedef struct{
 
 extern params_t params;
 
-
-extern void params_update_range_min_max(uint8_t chan,uint16_t value);
-extern void params_update_range_mid(uint8_t chan,uint16_t value);
 extern rt_err_t params_load(params_t * params);
 extern rt_err_t params_save(params_t * params);
 extern void params_load_default(params_t * params);

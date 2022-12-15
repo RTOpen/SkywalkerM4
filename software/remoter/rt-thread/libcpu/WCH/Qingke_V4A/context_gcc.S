@@ -25,6 +25,7 @@ rt_hw_interrupt_disable:
     csrrci a0, mstatus, 8
     nop						/* wait for 3 grade pipeline. */
     nop
+    nop
     ret
 	.endfunc
 

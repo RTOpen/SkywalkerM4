@@ -38,10 +38,9 @@ void adc_hw_init(void)
     GPIOA_ModeCfg(GPIO_Pin_3, GPIO_ModeIN_Floating);
     GPIOA_ModeCfg(GPIO_Pin_7, GPIO_ModeIN_Floating);
     ADC_ExtSingleChSampInit(SampleFreq_8, ADC_PGA_1_2);
-
     RoughCalib_Value = ADC_DataCalib_Rough(); // 用于计算ADC内部偏差，记录到全局变量 RoughCalib_Value中
-
     rt_sem_init(&wait_sem, "adc_wait", 0x00, RT_IPC_FLAG_FIFO);
+    PFIC_EnableIRQ(ADC_IRQn);
 }
 
 
@@ -70,10 +69,9 @@ void adc_multi_convert(void)
     conver_index = 0;
     ADC_ChannelCfg(adc_channel_map[conver_index]);
     ADC_ClearITFlag();
-    PFIC_EnableIRQ(ADC_IRQn);
     ADC_StartUp();
 
-    rt_sem_take(&wait_sem, RT_WAITING_FOREVER);
+    rt_sem_take(&wait_sem, 20);
 }
 /*********************************************************************
  * @fn      ADC_IRQHandler
@@ -100,9 +98,7 @@ void ADC_IRQHandler(void) //adc中断服务程序
             else
             {
              rt_sem_release(&wait_sem);
-             PFIC_DisableIRQ(ADC_IRQn);
             }
         }
-
     }
 }
