@@ -134,11 +134,12 @@ uint16_t encoder_read_pos(uint8_t id)
 __HIGH_CODE
 void GPIOA_IRQHandler(void)
 {
-    if(GPIOA_ReadITFlagBit(ROTARY_ENCODER_A_A_BV))
+    uint16_t flag = GPIOA_ReadITFlagPort();
+    if(flag&ROTARY_ENCODER_A_A_BV)
     {
     uint16_t astat = (R32_PA_PIN & ROTARY_ENCODER_A_A_BV);
     uint16_t bstat = (R32_PA_PIN & ROTARY_ENCODER_A_B_BV);
-    GPIOA_ClearITFlagBit(ROTARY_ENCODER_A_A_BV);
+
     state_change(&encoder_data[0],astat,bstat);
     if(astat)
     {
@@ -147,6 +148,7 @@ void GPIOA_IRQHandler(void)
         GPIOA_ITModeCfg(ROTARY_ENCODER_A_A_BV,GPIO_ITMode_RiseEdge);
     }
     }
+    GPIOA_ClearITFlagBit(flag);
 }
 
 /*********************************************************************
@@ -159,11 +161,11 @@ void GPIOA_IRQHandler(void)
 __HIGH_CODE
 void GPIOB_IRQHandler(void)
 {
-    if(GPIOB_ReadITFlagBit(ROTARY_ENCODER_B_A_BV))
+    uint16_t flag = GPIOA_ReadITFlagPort();
+    if(flag&ROTARY_ENCODER_B_A_BV)
     {
     uint16_t astat = (R32_PB_PIN & ROTARY_ENCODER_B_A_BV);
     uint16_t bstat = (R32_PB_PIN & ROTARY_ENCODER_B_B_BV);
-    GPIOB_ClearITFlagBit(ROTARY_ENCODER_B_A_BV);
     state_change(&encoder_data[1],astat,bstat);
     if(astat)
     {
@@ -172,4 +174,5 @@ void GPIOB_IRQHandler(void)
         GPIOB_ITModeCfg(ROTARY_ENCODER_B_A_BV,GPIO_ITMode_RiseEdge);
     }
     }
+    GPIOB_ClearITFlagBit(flag);
 }

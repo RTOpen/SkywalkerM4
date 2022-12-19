@@ -7,6 +7,7 @@ Erase All=true
 Program=true
 Verify=true
 Reset=true
+
 Vendor=WCH
 MCU=CH582F
 Mcu Type=CH58x
