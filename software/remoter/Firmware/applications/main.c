@@ -27,6 +27,7 @@ int main()
     led_thread_init();
     radio_thread_init();
     ui_thread_init();
+    radio_hw_init();
     while(1)
     {
 
@@ -34,11 +35,4 @@ int main()
     }
     return 0;
 }
-
-void msh_test_print(void)
-{
-    rt_kprintf("this is a test for msh.\n");
-}
-MSH_CMD_EXPORT(msh_test_print, this is a msh test);
-
 

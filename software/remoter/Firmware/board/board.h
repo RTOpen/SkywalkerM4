@@ -23,6 +23,7 @@
 #include "drv_buzzer.h"
 #include "drv_lcd.h"
 #include "drv_usbd.h"
+#include "drv_radio.h"
 #include "drv_encoder.h"
 
 /* board configuration */
