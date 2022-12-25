@@ -23,6 +23,7 @@ struct rt_hw_stack_frame
 {
     rt_ubase_t epc;        /* epc - epc    - program counter                     */
     rt_ubase_t ra;         /* x1  - ra     - return address for jumps            */
+    rt_ubase_t mstatus;    /*              - machine status register             */
     rt_ubase_t t0;         /* x5  - t0     - temporary register 0                */
     rt_ubase_t t1;         /* x6  - t1     - temporary register 1                */
     rt_ubase_t t2;         /* x7  - t2     - temporary register 2                */
@@ -87,26 +88,6 @@ rt_uint8_t *rt_hw_stack_init(void       *tentry,
     frame->epc     = (rt_ubase_t)tentry;
 
     return stk;
-}
-
-/*
- * disable interrupt and save mstatus
- */
-__attribute__((section(".highcode")))
-rt_base_t rt_hw_interrupt_disable(void)
-{
-    register rt_base_t value = 0;
-    asm("csrrw %0, mstatus, %1":"=r"(value):"r"(0x1800));
-    return value;
-}
-
-/*
- * enable interrupt and resume mstatus
- */
-__attribute__((section(".highcode")))
-void rt_hw_interrupt_enable(rt_base_t level)
-{
-    asm("csrw mstatus, %0": :"r"(level));
 }
 
 /*
