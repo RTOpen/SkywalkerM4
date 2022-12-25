@@ -147,12 +147,12 @@ SW_Handler:
     csrr  a0, mepc
     sw a0, 0 * 4(sp)
 
+	li t0, 0x1800					/* set MPIE to 0, make it safe when switch tasks. */
+	csrw mstatus, t0
+
     la    s0, rt_interrupt_from_thread
     lw  s1, 0(s0)
     sw sp, 0(s1)
-
-	li t0, 0x1800					/* set MPIE to 0, make it safe when switch tasks. */
-	csrw mstatus, t0
 
 	/* Load mret with the address of the next instruction in the task to run next. */
 	la t0, SW_Handler_Switch

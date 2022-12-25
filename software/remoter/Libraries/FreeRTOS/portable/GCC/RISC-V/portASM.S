@@ -152,10 +152,10 @@ SW_Handler:
 	csrr a1, mepc
 	sw a1, 0( sp )					/* Save updated exception return address. */
 
-	jal vTaskSwitchContext
-
 	li t0, 0x1800					/* set MPIE to 0, make it safe when switch tasks. */
 	csrw mstatus, t0
+
+	jal vTaskSwitchContext
 
 	/* Load mret with the address of the next instruction in the task to run next. */
 	la t0, SW_Handler_Switch
