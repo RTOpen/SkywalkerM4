@@ -9,36 +9,11 @@
  *******************************************************************************/
 #include "cpuport.h"
 
-.global rt_hw_interrupt_disable
-.global rt_hw_interrupt_enable
+
 .global rt_hw_context_switch_to
 .global rt_hw_context_switch
 .global rt_hw_context_switch_exit
 
-/*
- * rt_base_t rt_hw_interrupt_disable(void);
- */
-.section	.highcode,"ax",@progbits
-.align 2
-.func
-rt_hw_interrupt_disable:
-    csrrci a0, mstatus, 8
-    nop						/* wait for 3 grade pipeline. */
-    nop
-    nop
-    ret
-	.endfunc
-
-/*
- * void rt_hw_interrupt_enable(rt_base_t level);
- */
-.section	.highcode,"ax",@progbits
-.align 2
-.func
-rt_hw_interrupt_enable:
-    csrw mstatus, a0
-    ret
-    .endfunc
 
 .section	.highcode,"ax",@progbits
 .align 2

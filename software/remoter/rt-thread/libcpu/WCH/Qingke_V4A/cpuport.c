@@ -90,6 +90,26 @@ rt_uint8_t *rt_hw_stack_init(void       *tentry,
 }
 
 /*
+ * disable interrupt and save mstatus
+ */
+__attribute__((section(".highcode")))
+rt_base_t rt_hw_interrupt_disable(void)
+{
+    register rt_base_t value = 0;
+    asm("csrrw %0, mstatus, %1":"=r"(value):"r"(0x1800));
+    return value;
+}
+
+/*
+ * enable interrupt and resume mstatus
+ */
+__attribute__((section(".highcode")))
+void rt_hw_interrupt_enable(rt_base_t level)
+{
+    asm("csrw mstatus, %0": :"r"(level));
+}
+
+/*
  * #ifdef RT_USING_SMP
  * void rt_hw_context_switch_interrupt(void *context, rt_ubase_t from, rt_ubase_t to, struct rt_thread *to_thread);
  * #else

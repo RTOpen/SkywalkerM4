@@ -47,7 +47,7 @@
  * @brief  系统主频时钟（Hz）
  */
 #ifndef	 FREQ_SYS
-#define  FREQ_SYS		60000000
+#define  FREQ_SYS		80000000
 #endif
 
 #ifndef  SAFEOPERATE

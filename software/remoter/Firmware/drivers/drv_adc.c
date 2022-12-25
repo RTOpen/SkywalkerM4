@@ -97,10 +97,10 @@ void adc_multi_convert(void)
 //        adc_buffer[conver_index] = ADC_SingleConver();
 //    }
 #ifdef __RTTHREAD__
-    rt_sem_take(&wait_sem, 20);
+    rt_sem_take(&wait_sem, 50);
 #endif
 #ifdef __FREERTOS__
-    xSemaphoreTake(wait_sem, 20);
+    xSemaphoreTake(wait_sem, 50);
 #endif
 }
 
