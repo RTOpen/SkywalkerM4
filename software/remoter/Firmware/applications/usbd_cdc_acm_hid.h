@@ -1,6 +1,6 @@
 #ifndef __USBD_CDC_ACM_HID_MSC_H
 #define __USBD_CDC_ACM_HID_MSC_H
-#include "rtthread.h"
+#include "board.h"
 
 extern void cdc_acm_hid_init(void);
 

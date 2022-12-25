@@ -10,11 +10,9 @@
  */
  
 #include <stdint.h>
-#include <rthw.h>
-#include <rtthread.h>
 #include "board.h"
 
-static rt_uint32_t _SysTick_Config(rt_uint32_t ticks)
+static uint32_t _SysTick_Config(uint32_t ticks)
 {
     PFIC_SetPriority(SysTick_IRQn,0x00);
     PFIC_SetPriority(SWI_IRQn,0x00);
@@ -63,11 +61,46 @@ void rt_hw_board_init()
 #endif
 }
 
-
+#ifdef  __RTTHREAD__
 __HIGH_CODE
 void SysTick_Handler(void)
 {
     rt_tick_increase();
     SysTick->SR=0;
 }
+#endif
+
+#ifdef __FREERTOS__
+TaskHandle_t MainTask_Handler;
+extern int main();
+void main_task()
+{
+   main();
+}
+int entry(void)
+{
+    rt_hw_board_init();
+#ifdef DEBUG
+    GPIOA_SetBits(bTXD1);
+    GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
+    UART1_DefInit();
+#endif
+    PRINT("start.\n");
+
+    /* create three task */
+    xTaskCreate((TaskFunction_t)main_task,
+                (const char *)"main",
+                (uint16_t)256,
+                (void *)NULL,
+                (UBaseType_t)10,
+                (TaskHandle_t *)&MainTask_Handler);
+
+    vTaskStartScheduler();
+    while (1)
+    {
+        PRINT("shouldn't run at here!!\n");
+    }
+    return 0;
+}
+#endif
 

@@ -16,9 +16,9 @@ extern "C" {
  */
 
 /**
- * @brief   Initialize LED Service.
+ * @brief   Initialize USBD.
  */
-void usbd_hw_init(void);
+int usbd_hw_init(void);
 
 
 

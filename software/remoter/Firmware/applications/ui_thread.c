@@ -4,15 +4,14 @@
 #include "resource.h"
 #include "radio.h"
 
-#define UI_THREAD_STACK_SIZE        (1024)
-
-#define UI_THREAD_PRIORITY          (5)
-
+#ifdef __RTTHREAD__
 static struct rt_thread ui_thread;
 
-ALIGN(RT_ALIGN_SIZE)
 static rt_uint8_t ui_thread_stack[UI_THREAD_STACK_SIZE];
-
+#endif
+#ifdef __FREERTOS__
+static TaskHandle_t ui_thread;
+#endif
 uint16_t gui_color = 0x0000;
 uint16_t gui_bgcolor = 0x2AD3;
 static radio_data_t data;
@@ -28,7 +27,7 @@ static void ui_init(void)
 
     for (i = 0; i < CHANNEL_MAX; ++i) {
             data.channels[i] = radio.channels[i];
-            rt_sprintf(disp_buffer,"%s:% 4d",channel_name[i],data.channels[i]);
+            sprintf(disp_buffer,"%s:% 4d",channel_name[i],data.channels[i]);
             lcd_draw_text(10,60+i*20,disp_buffer,gui_color,gui_bgcolor);
     }
 }
@@ -41,7 +40,7 @@ static void ui_update(void)
         if(data.channels[i] != radio.channels[i])
         {
             data.channels[i] = radio.channels[i];
-            rt_sprintf(disp_buffer,"%s:% 4d",channel_name[i],data.channels[i]);
+            sprintf(disp_buffer,"%s:% 4d",channel_name[i],data.channels[i]);
             lcd_draw_text(10,60+i*20,disp_buffer,gui_color,gui_bgcolor);
         }
     }
@@ -50,7 +49,6 @@ static void ui_update(void)
 
 static void ui_thread_entry(void *parameter)
 {
-    rt_uint32_t evt = 0;
     rt_err_t ret = RT_EOK;
     ui_init();
     while(1)
@@ -64,6 +62,7 @@ int ui_thread_init(void)
 {
 
     rt_err_t result = RT_EOK;
+#ifdef __RTTHREAD__
     result = rt_thread_init(&ui_thread, "ui",
         ui_thread_entry, RT_NULL,
         &ui_thread_stack[0], sizeof(ui_thread_stack),
@@ -73,6 +72,15 @@ int ui_thread_init(void)
     {
         rt_thread_startup(&ui_thread);
     }
-    
-    return 0;
+#endif
+#ifdef __FREERTOS__
+    /* create radio task */
+    xTaskCreate((TaskFunction_t)ui_thread_entry,
+                (const char *)"radio",
+                (uint16_t)UI_THREAD_STACK_SIZE/4,
+                (void *)NULL,
+                (UBaseType_t)(configMAX_PRIORITIES - UI_THREAD_PRIORITY - 1),
+                (TaskHandle_t *)&ui_thread);
+#endif
+    return result;
 }

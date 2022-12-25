@@ -1,6 +1,6 @@
 #ifndef __RADIO_H__
 #define __RADIO_H__
-#include <rtthread.h>
+#include "board.h"
 #include <stdint.h>
 
 typedef enum

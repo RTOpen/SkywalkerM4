@@ -1,4 +1,3 @@
-#include <rtthread.h>
 #include "battery.h"
 
 /**
@@ -32,10 +31,10 @@ static const float batt_volts_array[101] = {
  * Performs a binary search to find the index corresponding to a voltage.
  * The index of the array is the charge %
 */
-rt_uint8_t battery_get_level(float volts){
-  rt_uint8_t index = 50;
-  rt_uint8_t prev = 0;
-  rt_uint8_t half = 0;
+uint8_t battery_get_level(float volts){
+  uint8_t index = 50;
+  uint8_t prev = 0;
+  uint8_t half = 0;
   if (volts >= 4.2f){
     return 100;
   }

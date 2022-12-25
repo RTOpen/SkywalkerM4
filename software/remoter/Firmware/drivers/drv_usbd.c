@@ -1,4 +1,4 @@
-#include "rtthread.h"
+#include "board.h"
 #include "CH58x_common.h"
 
 

@@ -15,7 +15,35 @@
 
 #ifndef __BOARD_H__
 #define __BOARD_H__
+
+#ifdef __FREERTOS__
+#include "freertos.h"
+#include "task.h"
+#include "semphr.h"
+
+#define rt_err_t int
+/* RT-Thread error code definitions */
+#define RT_EOK                          0               /**< There is no error */
+#define RT_ERROR                        1               /**< A generic error happens */
+#define RT_ETIMEOUT                     2               /**< Timed out */
+#define RT_EFULL                        3               /**< The resource is full */
+#define RT_EEMPTY                       4               /**< The resource is empty */
+#define RT_ENOMEM                       5               /**< No memory */
+#define RT_ENOSYS                       6               /**< No system */
+#define RT_EBUSY                        7               /**< Busy */
+#define RT_EIO                          8               /**< IO error */
+#define RT_EINTR                        9               /**< Interrupted system call */
+#define RT_EINVAL                       10              /**< Invalid argument */
+
+#define rt_thread_delay(x) vTaskDelay(x)
+#define rt_thread_mdelay(x) vTaskDelay(x/portTICK_PERIOD_MS)
+#define RT_TICK_PER_SECOND configTICK_RATE_HZ
+#define rt_tick_get xTaskGetTickCount
+#endif
+
+#ifdef __RTTHREAD__
 #include <rtthread.h>
+#endif
 #include "CH58x_common.h"
 #include "drv_usart.h"
 #include "drv_adc.h"

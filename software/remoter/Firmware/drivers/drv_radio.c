@@ -1,6 +1,7 @@
-#include "rtthread.h"
+
 /* 头文件包含 */
 #include "CONFIG.h"
+#include "board.h"
 #include "drv_radio.h"
 #include "HAL.h"
 

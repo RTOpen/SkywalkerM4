@@ -1,5 +1,4 @@
 #include "board.h"
-#include <rtthread.h>
 #include "threads.h"
 #include "usbd_cdc_acm_hid.h"
 #include "radio.h"
@@ -23,7 +22,7 @@ int main()
     lcd_hw_init();
     buzzer_hw_init();
     encoder_hw_init();
-    //tone_play_thread_init();
+    tone_play_thread_init();
     led_thread_init();
     radio_thread_init();
     ui_thread_init();

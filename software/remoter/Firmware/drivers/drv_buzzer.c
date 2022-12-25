@@ -1,4 +1,4 @@
-#include "rtthread.h"
+#include "board.h"
 #include "drv_buzzer.h"
 
 #define SET_FREQ(BUZZER_FREQ) (80000000 / (256*BUZZER_FREQ))

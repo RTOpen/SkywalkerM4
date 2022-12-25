@@ -8,7 +8,8 @@
  * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 #include "drv_usart.h"
-#include "rtthread.h"
+#include "board.h"
+#ifdef __RTTHREAD__
 #include "rtdevice.h"
 #include <string.h>
 
@@ -102,3 +103,5 @@ void UART1_IRQHandler(void)
         break;
     }
 }
+#endif
+

@@ -1,6 +1,5 @@
 
 /* 头文件包含 */
-#include "rtthread.h"
 #include "board.h"
 #include "HAL.h"
 
@@ -47,7 +46,6 @@ typedef struct
  uint8_t state;
 }encoder_data_t;
 
-ALIGN(RT_ALIGN_SIZE)
 static encoder_data_t encoder_data[ROTARY_ENCODER_NUM];
 
 void state_change(encoder_data_t *data,uint16_t astate, uint16_t bstate)

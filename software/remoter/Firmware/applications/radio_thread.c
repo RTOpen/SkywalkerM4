@@ -2,19 +2,19 @@
 #include "radio.h"
 #include "params.h"
 
-#define RADIO_THREAD_STACK_SIZE        (2048)
-
-#define RADIO_THREAD_PRIORITY          (3)
-
-
 #define JOYSTICK_CALIBRA_NONE     (0x00)
 #define JOYSTICK_CALIBRA_STEP1    (0x01)
 #define JOYSTICK_CALIBRA_STEP2    (0x02)
 #define JOYSTICK_CALIBRA_STEP3    (0x03)
 
+#ifdef __RTTHREAD__
 static struct rt_thread radio_thread;
 
 static rt_uint8_t radio_thread_stack[RADIO_THREAD_STACK_SIZE];
+#endif
+#ifdef __FREERTOS__
+static TaskHandle_t radio_thread;
+#endif
 
 radio_data_t radio;
 static uint16_t channels[CHANNEL_MAX]={0};
@@ -96,15 +96,15 @@ static void radio_thread_entry(void *parameter)
                   }
                   if(rt_tick_get() - timeout > 5*RT_TICK_PER_SECOND)
                   {
-                      rt_bool_t finish = RT_TRUE;
+                      BOOL finish = TRUE;
                       for (int i = 0; i < JOYSTICK_ADC_MAX_CHANNELS; ++i) {
                           if(params.max_value[i] - params.min_value[i] <1200)
                             {
-                              finish = RT_FALSE;
+                              finish = FALSE;
                               break;
                             }
                             }
-                      if(finish == RT_TRUE)
+                      if(finish == TRUE)
                       {
                       radio.calibra_step++;
                       timeout = 0;
@@ -124,15 +124,15 @@ static void radio_thread_entry(void *parameter)
                    }
                   if(rt_tick_get() - timeout > 5*RT_TICK_PER_SECOND)
                    {
-                      rt_bool_t finish = RT_TRUE;
+                      BOOL finish = TRUE;
                       for (int i = 0; i < JOYSTICK_ADC_MAX_CHANNELS; ++i) {
                           if(params.max_value[i] - params.min_value[i] <1200)
                             {
-                              finish = RT_FALSE;
+                              finish = FALSE;
                               break;
                             }
                             }
-                      if(finish == RT_TRUE)
+                      if(finish == TRUE)
                       {
                       radio.calibra_step++;
                       timeout = 0;
@@ -179,7 +179,7 @@ int radio_thread_init(void)
 {
     rt_err_t result = RT_EOK;
     
-    
+#ifdef __RTTHREAD__
     result = rt_thread_init(&radio_thread, "radio",
         radio_thread_entry, RT_NULL, 
         &radio_thread_stack[0], sizeof(radio_thread_stack), 
@@ -189,7 +189,16 @@ int radio_thread_init(void)
     {
         rt_thread_startup(&radio_thread);
     }
-    
-    return 0;
+#endif
+#ifdef __FREERTOS__
+    /* create radio task */
+    xTaskCreate((TaskFunction_t)radio_thread_entry,
+                (const char *)"radio",
+                (uint16_t)RADIO_THREAD_STACK_SIZE/4,
+                (void *)NULL,
+                (UBaseType_t)(configMAX_PRIORITIES - RADIO_THREAD_PRIORITY - 1),
+                (TaskHandle_t *)&radio_thread);
+#endif
+    return result;
 }
 
