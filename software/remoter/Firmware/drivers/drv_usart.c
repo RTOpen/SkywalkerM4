@@ -9,7 +9,6 @@
  *******************************************************************************/
 #include "drv_usart.h"
 #include "board.h"
-#ifdef __RTTHREAD__
 #include "rtdevice.h"
 #include <string.h>
 
@@ -38,8 +37,6 @@ int usart_init(void)
     return 0;
 }
 INIT_BOARD_EXPORT(usart_init);//add to board auto initial
-
-
 
 // output
 void rt_hw_console_output(const char *str)
@@ -74,7 +71,6 @@ char rt_hw_console_getchar(void)
     }
     else
     {
-        rt_thread_mdelay(10);
         return -1;
     }
     return ch;
@@ -103,5 +99,4 @@ void UART1_IRQHandler(void)
         break;
     }
 }
-#endif
 

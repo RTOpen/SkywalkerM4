@@ -91,15 +91,10 @@ static void tone_play_thread_entry(void *parameter)
     
     while(1)
     {
-#ifdef __RTTHREAD__
        ret = rt_event_recv(&tone_event, 0xffffffff,
                           RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
                           RT_WAITING_FOREVER, &evt);
         if(ret == RT_EOK)
-#endif
-#ifdef __FREERTOS__
-       if(xSemaphoreTake(tone_event, portMAX_DELAY) == pdTRUE)
-#endif
         {
         switch(tone_id)
         {
@@ -137,17 +132,12 @@ static void tone_play_thread_entry(void *parameter)
 void tones_play_background(uint8_t id)
 {
     tone_id = id;
-#ifdef __RTTHREAD__
     rt_event_send(&tone_event, 0x01);
-#endif
-#ifdef __FREERTOS__
-    xSemaphoreGive(tone_event);
-#endif
 }
 int tone_play_thread_init(void)
 {
     rt_err_t result = RT_EOK;
-#ifdef __RTTHREAD__
+
     rt_event_init(&tone_event, "tone_evt", RT_IPC_FLAG_FIFO);
     
     result = rt_thread_init(&tone_play_thread, "tone",
@@ -159,21 +149,6 @@ int tone_play_thread_init(void)
     {
         rt_thread_startup(&tone_play_thread);
     }
-#endif
-#ifdef __FREERTOS__
-    tone_event = xSemaphoreCreateBinary();
-    if(tone_event != NULL)
-    {
 
-    /* create three task */
-    xTaskCreate((TaskFunction_t)tone_play_thread_entry,
-                (const char *)"tone",
-                (uint16_t)TONE_THREAD_STACK_SIZE/4,
-                (void *)NULL,
-                (UBaseType_t)(configMAX_PRIORITIES - TONE_PLAY_THREAD_PRIORITY - 1),
-                (TaskHandle_t *)&tone_play_thread);
-    }
-#endif
-    
     return 0;
 }

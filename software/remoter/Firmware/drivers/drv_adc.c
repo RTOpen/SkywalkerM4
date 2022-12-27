@@ -18,12 +18,7 @@
 static uint16_t adc_buffer[ADC_CHANNEL_MAX];
 static const uint8_t adc_channel_map[ADC_CHANNEL_MAX] = { CH_EXTIN_9,CH_EXTIN_8,CH_EXTIN_7,CH_EXTIN_6,CH_EXTIN_11, CH_INTE_VTEMP};
 static int16_t RoughCalib_Value;
-#ifdef __RTTHREAD__
 static struct rt_semaphore wait_sem;
-#endif
-#ifdef __FREERTOS__
-static SemaphoreHandle_t wait_sem;
-#endif
 static uint8_t conver_index = 0;
 
 static uint16_t ADC_SingleConver(void)
@@ -55,12 +50,7 @@ void adc_hw_init(void)
     GPIOA_ModeCfg(GPIO_Pin_7, GPIO_ModeIN_Floating);
     ADC_ExtSingleChSampInit(SampleFreq_8, ADC_PGA_1_2);
     RoughCalib_Value = ADC_DataCalib_Rough(); // 用于计算ADC内部偏差，记录到全局变量 RoughCalib_Value中
-#ifdef __RTTHREAD__
     rt_sem_init(&wait_sem, "adc_wait", 0x00, RT_IPC_FLAG_FIFO);
-#endif
-#ifdef __FREERTOS__
-    wait_sem = xSemaphoreCreateBinary();
-#endif
     PFIC_EnableIRQ(ADC_IRQn);
 }
 
@@ -92,16 +82,7 @@ void adc_multi_convert(void)
     ADC_ChannelCfg(adc_channel_map[conver_index]);
     ADC_ClearITFlag();
     ADC_StartUp();
-//    for (conver_index = 0; conver_index < ADC_CHANNEL_MAX; ++conver_index) {
-//        ADC_ChannelCfg(adc_channel_map[conver_index]);
-//        adc_buffer[conver_index] = ADC_SingleConver();
-//    }
-#ifdef __RTTHREAD__
     rt_sem_take(&wait_sem, 50);
-#endif
-#ifdef __FREERTOS__
-    xSemaphoreTake(wait_sem, 50);
-#endif
 }
 
 /*********************************************************************
@@ -114,9 +95,6 @@ void adc_multi_convert(void)
 __HIGH_CODE
 void ADC_IRQHandler(void) //adc中断服务程序
 {
-#ifdef __FREERTOS__
-    portBASE_TYPE xHigherPriorityTaskWoken = 0;
-#endif
     if(ADC_GetITStatus())
     {
         ADC_ClearITFlag();
@@ -131,13 +109,7 @@ void ADC_IRQHandler(void) //adc中断服务程序
             }
             else
             {
-#ifdef __RTTHREAD__
              rt_sem_release(&wait_sem);
-#endif
-#ifdef __FREERTOS__
-             xSemaphoreGiveFromISR( wait_sem, &xHigherPriorityTaskWoken );
-             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);   /* 根据需要发起切换请求 */
-#endif
             }
         }
     }

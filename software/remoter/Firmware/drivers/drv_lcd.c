@@ -5,12 +5,8 @@
 
 
 static font_t *default_font = NULL;
-#ifdef __RTTHREAD__
 static struct rt_semaphore wait_sem;
-#endif
-#ifdef __FREERTOS__
-static SemaphoreHandle_t wait_sem;
-#endif
+
 
 #define BUFFER_SIZE  (2000)
 
@@ -59,33 +55,18 @@ void LCD_SPIDMATrans(uint8_t *data, uint16_t len)
     R16_SPI0_DMA_END = (uint32_t)(data + len);
     R16_SPI0_TOTAL_CNT = len;
     R8_SPI0_INT_FLAG = RB_SPI_IF_CNT_END | RB_SPI_IF_DMA_END;
-
-     R8_SPI0_INTER_EN = RB_SPI_IF_DMA_END;
-     R8_SPI0_CTRL_CFG |= RB_SPI_DMA_ENABLE;
-#ifdef __RTTHREAD__
+    R8_SPI0_INTER_EN = RB_SPI_IF_DMA_END;
+    R8_SPI0_CTRL_CFG |= RB_SPI_DMA_ENABLE;
     rt_sem_take(&wait_sem,RT_WAITING_FOREVER);
-#endif
-#ifdef __FREERTOS__
-    xSemaphoreTake(wait_sem, portMAX_DELAY);
-#endif
 }
 
 __HIGH_CODE
 void SPI0_IRQHandler(void)
 {
-#ifdef __FREERTOS__
-    portBASE_TYPE xHigherPriorityTaskWoken = 0;
-#endif
     R8_SPI0_INTER_EN = 0;
     R8_SPI0_CTRL_CFG &= ~RB_SPI_DMA_ENABLE;
     R8_SPI0_INT_FLAG |= RB_SPI_IF_DMA_END;
-#ifdef __RTTHREAD__
     rt_sem_release(&wait_sem);
-#endif
-#ifdef __FREERTOS__
-    xSemaphoreGiveFromISR( wait_sem, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);   /* 根据需要发起切换请求 */
-#endif
 }
 
 static void lcd_reg_init(void)
@@ -192,12 +173,7 @@ static void lcd_reg_init(void)
 
 void lcd_hw_init(void)
 {
-#ifdef __RTTHREAD__
-    rt_sem_init(&wait_sem, "lcd_wait", 0x00, RT_IPC_FLAG_FIFO);
-#endif
-#ifdef __FREERTOS__
-    wait_sem = xSemaphoreCreateBinary();
-#endif
+  rt_sem_init(&wait_sem, "lcd_wait", 0x00, RT_IPC_FLAG_FIFO);
   // Initialize LCD GPIOs
   GPIO_Configuration();
   SPI_Configuration();

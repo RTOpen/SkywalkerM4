@@ -7,14 +7,9 @@
 #define JOYSTICK_CALIBRA_STEP2    (0x02)
 #define JOYSTICK_CALIBRA_STEP3    (0x03)
 
-#ifdef __RTTHREAD__
 static struct rt_thread radio_thread;
 
 static rt_uint8_t radio_thread_stack[RADIO_THREAD_STACK_SIZE];
-#endif
-#ifdef __FREERTOS__
-static TaskHandle_t radio_thread;
-#endif
 
 radio_data_t radio;
 static uint16_t channels[CHANNEL_MAX]={0};
@@ -179,7 +174,6 @@ int radio_thread_init(void)
 {
     rt_err_t result = RT_EOK;
     
-#ifdef __RTTHREAD__
     result = rt_thread_init(&radio_thread, "radio",
         radio_thread_entry, RT_NULL, 
         &radio_thread_stack[0], sizeof(radio_thread_stack), 
@@ -189,16 +183,7 @@ int radio_thread_init(void)
     {
         rt_thread_startup(&radio_thread);
     }
-#endif
-#ifdef __FREERTOS__
-    /* create radio task */
-    xTaskCreate((TaskFunction_t)radio_thread_entry,
-                (const char *)"radio",
-                (uint16_t)RADIO_THREAD_STACK_SIZE/4,
-                (void *)NULL,
-                (UBaseType_t)(configMAX_PRIORITIES - RADIO_THREAD_PRIORITY - 1),
-                (TaskHandle_t *)&radio_thread);
-#endif
+
     return result;
 }
 
