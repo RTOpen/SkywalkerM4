@@ -9,7 +9,7 @@
  * GLOBAL TYPEDEFS
  */
 uint8_t taskID;
-uint8_t TX_DATA[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+uint8_t TX_DATA[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16};
 
 /*********************************************************************
  * @fn      RF_2G4StatusCallBack
@@ -39,20 +39,20 @@ void RF_2G4StatusCallBack(uint8_t sta, uint8_t crc, uint8_t *rxBuf)
             if (crc == 0) {
                 uint8_t i;
 
-                PRINT("tx recv,rssi:%d\n", (int8_t)rxBuf[0]);
-                PRINT("len:%d-", rxBuf[1]);
+                rt_kprintf("tx recv,rssi:%d\n", (int8_t)rxBuf[0]);
+                rt_kprintf("len:%d-", rxBuf[1]);
 
                 for (i = 0; i < rxBuf[1]; i++) {
-                    PRINT("%x ", rxBuf[i + 2]);
+                    rt_kprintf("%x ", rxBuf[i + 2]);
                 }
-                PRINT("\n");
+                rt_kprintf("\n");
             } else {
                 if (crc & (1<<0)) {
-                    PRINT("crc error\n");
+                    rt_kprintf("crc error\n");
                 }
 
                 if (crc & (1<<1)) {
-                    PRINT("match type error\n");
+                    rt_kprintf("match type error\n");
                 }
             }
             break;
@@ -61,34 +61,28 @@ void RF_2G4StatusCallBack(uint8_t sta, uint8_t crc, uint8_t *rxBuf)
         {
             break;
         }
-        case TX_MODE_HOP_SHUT:
-        {
-            PRINT("TX_MODE_HOP_SHUT...\n");
-            tmos_set_event(taskID, SBP_RF_CHANNEL_HOP_TX_EVT);
-            break;
-        }
-
         case RX_MODE_RX_DATA:
         {
             if (crc == 0) {
                 uint8_t i;
 
-                PRINT("rx recv, rssi: %d\n", (int8_t)rxBuf[0]);
-                PRINT("len:%d-", rxBuf[1]);
+                rt_kprintf("rx recv, rssi: %d\n", (int8_t)rxBuf[0]);
+                rt_kprintf("len:%d-", rxBuf[1]);
                 
                 for (i = 0; i < rxBuf[1]; i++) {
-                    PRINT("%x ", rxBuf[i + 2]);
+                    rt_kprintf("%x ", rxBuf[i + 2]);
                 }
-                PRINT("\n");
+                rt_kprintf("\n");
             } else {
                 if (crc & (1<<0)) {
-                    PRINT("crc error\n");
+                    rt_kprintf("crc error\n");
                 }
 
                 if (crc & (1<<1)) {
-                    PRINT("match type error\n");
+                    rt_kprintf("match type error\n");
                 }
             }
+            tmos_set_event(taskID, SBP_RF_RF_RX_EVT);
             break;
         }
         case RX_MODE_TX_FINISH:
@@ -98,13 +92,6 @@ void RF_2G4StatusCallBack(uint8_t sta, uint8_t crc, uint8_t *rxBuf)
         }
         case RX_MODE_TX_FAIL:
         {
-            tmos_set_event(taskID, SBP_RF_RF_RX_EVT);
-            break;
-        }
-        case RX_MODE_HOP_SHUT:
-        {
-            PRINT("RX_MODE_HOP_SHUT...\n");
-            tmos_set_event(taskID, SBP_RF_CHANNEL_HOP_RX_EVT);
             break;
         }
     }
@@ -136,15 +123,15 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
     }
     if(events & SBP_RF_START_DEVICE_EVT)
     {
-        tmos_start_task(taskID, SBP_RF_PERIODIC_EVT, 1000);
+        tmos_start_task(taskID, SBP_RF_PERIODIC_EVT, 20);
         return events ^ SBP_RF_START_DEVICE_EVT;
     }
     if(events & SBP_RF_PERIODIC_EVT)
     {
+        uint8_t state;
         RF_Shut();
-        TX_DATA[0]--;
-        RF_Tx(TX_DATA, 10, 0xFF, 0xFF);
-        tmos_start_task(taskID, SBP_RF_PERIODIC_EVT, 1000);
+        RF_Tx(TX_DATA, 16, 0xFF, 0xFF);
+        tmos_start_task(taskID, SBP_RF_PERIODIC_EVT, 20);
         return events ^ SBP_RF_PERIODIC_EVT;
     }
     if(events & SBP_RF_RF_RX_EVT)
@@ -152,39 +139,12 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
         uint8_t state;
         RF_Shut();
         TX_DATA[0]++;
-        state = RF_Rx(TX_DATA, 10, 0xFF, 0xFF);
+        RF_Rx(TX_DATA, 16, 0xFF, 0xFF);
         return events ^ SBP_RF_RF_RX_EVT;
-    }
-    // 开启跳频发送
-    if(events & SBP_RF_CHANNEL_HOP_TX_EVT)
-    {
-        PRINT("\n------------- hop tx...\n");
-        if(RF_FrequencyHoppingTx(16))
-        {
-            tmos_start_task(taskID, SBP_RF_CHANNEL_HOP_TX_EVT, 100);
-        }
-        else
-        {
-            tmos_start_task(taskID, SBP_RF_PERIODIC_EVT, 1000);
-        }
-        return events ^ SBP_RF_CHANNEL_HOP_TX_EVT;
-    }
-    // 开启跳频接收
-    if(events & SBP_RF_CHANNEL_HOP_RX_EVT)
-    {
-        PRINT("hop rx...\n");
-        if(RF_FrequencyHoppingRx(200))
-        {
-            tmos_start_task(taskID, SBP_RF_CHANNEL_HOP_RX_EVT, 400);
-        }
-        else
-        {
-            RF_Rx(TX_DATA, 10, 0xFF, 0xFF);
-        }
-        return events ^ SBP_RF_CHANNEL_HOP_RX_EVT;
     }
     return 0;
 }
+
 
 /*********************************************************************
  * @fn      RF_Init
@@ -201,20 +161,20 @@ void radio_hw_init(void)
     tmos_memset(&rfConfig, 0, sizeof(rfConfig_t));
     taskID = TMOS_ProcessEventRegister(RF_ProcessEvent);
     rfConfig.accessAddress = 0x71764129; // 禁止使用0x55555555以及0xAAAAAAAA ( 建议不超过24次位反转，且不超过连续的6个0或1 )
-    rfConfig.CRCInit = 0x666666;
-    rfConfig.ChannelMap = 0xFFFFFFFF;
-    rfConfig.LLEMode = LLE_MODE_AUTO;
+    rfConfig.CRCInit = 0x555555;
+    rfConfig.Channel = 10;
+    //rfConfig.Frequency = 2480000;
+    rfConfig.LLEMode = LLE_MODE_AUTO | LLE_MODE_PHY_CODED_S2; // 使能 LLE_MODE_EX_CHANNEL 表示 选择 rfConfig.Frequency 作为通信频点
     rfConfig.rfStatusCB = RF_2G4StatusCallBack;
     rfConfig.RxMaxlen = 251;
     state = RF_Config(&rfConfig);
-    PRINT("rf 2.4g init: %x\n", state);
-    //    { // RX mode
-    //        PRINT("RX mode...\n");
-    //        tmos_set_event(taskID, SBP_RF_CHANNEL_HOP_RX_EVT);
-    //    }
+//    rt_kprintf("rf 2.4g init: %x\n", state);
+//    { // RX mode
+//        state = RF_Rx(TX_DATA, 10, 0xFF, 0xFF);
+//        rt_kprintf("RX mode.state = %x\n", state);
+//    }
 
-    { // TX mode
-        PRINT("TX mode...\n");
-        tmos_set_event(taskID, SBP_RF_CHANNEL_HOP_TX_EVT);
-    }
+      { // TX mode
+          tmos_set_event( taskID , SBP_RF_PERIODIC_EVT );
+      }
 }

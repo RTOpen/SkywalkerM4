@@ -50,7 +50,6 @@ void RTC_SetTignTime(uint32_t time)
  *
  * @return  None.
  */
-__INTERRUPT
 __HIGH_CODE
 void RTC_IRQHandler(void)
 {

@@ -122,7 +122,7 @@ rt_hw_context_switch_exit:
 
 	lw x1, 1 * 4( sp )
 
-		/* keep machine mode */
+	/* keep machine mode */
 	li    a0,      0x1800
 	csrs  mstatus, a0
 	/* resume MPIE */

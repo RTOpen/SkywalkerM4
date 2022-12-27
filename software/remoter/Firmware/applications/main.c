@@ -3,6 +3,9 @@
 #include "usbd_cdc_acm_hid.h"
 #include "radio.h"
 #include "params.h"
+#include "hal.h"
+
+__attribute__((aligned(4))) uint32_t MEM_BUF[BLE_MEMHEAP_SIZE / 4];
 
 /*********************************************************************
  * @fn      main
@@ -22,15 +25,18 @@ int main()
     lcd_hw_init();
     buzzer_hw_init();
     encoder_hw_init();
-    tone_play_thread_init();
+    //tone_play_thread_init();
     led_thread_init();
     radio_thread_init();
     ui_thread_init();
+    CH58X_BLEInit();
+    HAL_Init();
+    RF_RoleInit();
     radio_hw_init();
     while(1)
     {
-
-        rt_thread_mdelay(20);
+        TMOS_SystemProcess();
+        rt_thread_mdelay(1);
     }
     return 0;
 }

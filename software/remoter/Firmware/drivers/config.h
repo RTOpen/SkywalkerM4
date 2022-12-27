@@ -86,12 +86,6 @@
 #ifndef WAKE_UP_RTC_MAX_TIME
 #define WAKE_UP_RTC_MAX_TIME                (45U)
 #endif
-#ifndef HAL_KEY
-#define HAL_KEY                             FALSE
-#endif
-#ifndef HAL_LED
-#define HAL_LED                             FALSE
-#endif
 #ifndef TEM_SAMPLE
 #define TEM_SAMPLE                          TRUE
 #endif
