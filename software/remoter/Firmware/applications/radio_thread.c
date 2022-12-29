@@ -1,6 +1,8 @@
 #include "threads.h"
 #include "radio.h"
 #include "params.h"
+#include "button.h"
+#include "usbd_cdc_acm_hid.h"
 
 #define JOYSTICK_CALIBRA_NONE     (0x00)
 #define JOYSTICK_CALIBRA_STEP1    (0x01)
@@ -14,6 +16,7 @@ static rt_uint8_t radio_thread_stack[RADIO_THREAD_STACK_SIZE];
 radio_data_t radio;
 static uint16_t channels[CHANNEL_MAX]={0};
 static uint8_t HID_Buffer[19];
+static button_t buttons[KEY_SW_NUM];
 
 void radio_update_range_min_max(uint8_t chan,uint16_t value)
 {
@@ -49,6 +52,40 @@ static uint16_t radio_data_normalize(uint16_t value,uint16_t in_min_val,uint16_t
     return value_out;
 }
 
+static void btn_clicked_callback(void*param)
+{
+    button_t *btn = (button_t*)param;
+    RT_ASSERT(btn != RT_NULL);
+    tones_play_background(TONE_BTN_CLICK);
+
+}
+
+static void btn_double_clicked_callback(void*param)
+{
+    button_t *btn = (button_t*)param;
+    RT_ASSERT(btn != RT_NULL);
+}
+
+static void btn_long_press_callback(void*param)
+{
+    button_t *btn = (button_t*)param;
+    RT_ASSERT(btn != RT_NULL);
+    tones_play_background(TONE_BTN_LONG_CLICK);
+    switch(btn->key_id)
+    {
+    case KEY_SW_HOME:
+        break;
+    case KEY_SW_LEFT:
+        break;
+    case KEY_SW_RIGHT:
+        radio.calibra_step = JOYSTICK_CALIBRA_STEP1;
+        params.calibraed = 0;
+        break;
+    case KEY_SW_POWER:
+        break;
+    }
+}
+
 static void radio_thread_entry(void *parameter)
 {
     uint32_t timeout = 0;
@@ -60,6 +97,16 @@ static void radio_thread_entry(void *parameter)
     {
         radio.calibra_step = JOYSTICK_CALIBRA_NONE;
     }
+
+    for (int i = 0; i < KEY_SW_NUM; ++i) {
+        button_init(&buttons[i], (0x01 << i));
+        button_attach(&buttons[i], SINGLE_CLICK, btn_clicked_callback);
+        button_attach(&buttons[i], DOUBLE_CLICK, btn_double_clicked_callback);
+        button_attach(&buttons[i], LONG_RRESS_START, btn_long_press_callback);
+        button_start(&buttons[i]);
+    }
+
+
     rt_thread_delay(RT_TICK_PER_SECOND);
 
     while(1)
@@ -156,7 +203,6 @@ static void radio_thread_entry(void *parameter)
             for (int i = 4; i < CHANNEL_MAX; ++i) {
                 radio.channels[i] = channels[i];
             }
-            extern void usbd_hid_send_report(uint8_t *data,uint16_t len);
                     for (int i = 0; i < CHANNEL_MAX; ++i) {
                       int16_t value = radio_data_normalize(radio.channels[i],1000,1500,2000,0,1023,2047);
                       HID_Buffer[i*2 +3] = (value & 0xFF);
@@ -164,8 +210,8 @@ static void radio_thread_entry(void *parameter)
                     }
                     usbd_hid_send_report(HID_Buffer,19);
         }
-
-     rt_thread_delay(16);
+     button_process(key_scan());
+     rt_thread_delay(20);
     }
 }
 

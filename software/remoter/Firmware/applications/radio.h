@@ -29,7 +29,8 @@ typedef enum
   TONE_NONE=0x00,         //无
   TONE_POWER_ON,         //开机声音
   TONE_POWER_OFF,        //关机声音
-  TONE_BTN_CLICK,        //按键声音
+  TONE_BTN_CLICK,        //按键短按声音
+  TONE_BTN_LONG_CLICK,   //按键长按声音
   TONE_WARNING,          //警告声音
   TONE_CALIBRA_STEP1,    //校准声音
   TONE_CALIBRA_STEP2,    //校准声音

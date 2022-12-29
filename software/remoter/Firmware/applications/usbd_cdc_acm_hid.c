@@ -2,7 +2,7 @@
 #include "usbd_core.h"
 #include "usbd_cdc.h"
 #include "usbd_hid.h"
-
+#include "rtdevice.h"
 
 
 /*!< endpoint address */
@@ -189,9 +189,13 @@ static struct usbd_endpoint hid_in_ep = {
 USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t read_buffer[BUFFER_SIZE];
 USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t write_buffer[BUFFER_SIZE];
 
-#ifdef __RTTHREAD__
+uint8_t cdc_tx_buffer[BUFFER_SIZE];
+uint8_t cdc_rx_buffer[BUFFER_SIZE];
+
+struct rt_ringbuffer rb_cdc_tx;
+struct rt_ringbuffer rb_cdc_rx;
+
 static struct rt_semaphore cdc_tx_sem;
-#endif
 
 #ifdef CONFIG_USB_HS
 #define CDC_MAX_MPS 512
@@ -207,24 +211,19 @@ void usbd_configure_done_callback(void)
 
 void usbd_cdc_acm_bulk_out(uint8_t ep, uint32_t nbytes)
 {
-    USB_LOG_RAW("actual out len:%d\r\n", nbytes);
-    
     /* setup next out ep read transfer */
     usbd_ep_start_read(CDC_OUT_EP, read_buffer, BUFFER_SIZE);
 }
 
 void usbd_cdc_acm_bulk_in(uint8_t ep, uint32_t nbytes)
 {
-    USB_LOG_RAW("actual in len:%d\r\n", nbytes);
+    //USB_LOG_RAW("actual in len:%d\r\n", nbytes);
 
     if ((nbytes % CDC_MAX_MPS) == 0 && nbytes) {
         /* send zlp */
         usbd_ep_start_write(CDC_IN_EP, NULL, 0);
     } else {
-#ifdef __RTTHREAD__
         rt_sem_release(&cdc_tx_sem);
-#endif
-
     }
 }
 
@@ -245,12 +244,10 @@ struct usbd_interface intf2;
 
 void cdc_acm_hid_init(void)
 {
-#ifdef __RTTHREAD__
     rt_sem_init(&cdc_tx_sem,"cdc_tx",1,RT_IPC_FLAG_FIFO);
-#endif
     
-    //rt_ringbuffer_init(&rb_cdc_tx,cdc_tx_buffer,sizeof(cdc_tx_buffer));
-    //rt_ringbuffer_init(&rb_cdc_rx,cdc_rx_buffer,sizeof(cdc_rx_buffer));
+    rt_ringbuffer_init(&rb_cdc_tx,cdc_tx_buffer,sizeof(cdc_tx_buffer));
+    rt_ringbuffer_init(&rb_cdc_rx,cdc_rx_buffer,sizeof(cdc_rx_buffer));
     
     usbd_desc_register(cdc_acm_hid_descriptor);
 
@@ -295,19 +292,19 @@ void usbd_cdc_acm_set_dtr(uint8_t intf, bool dtr)
     }
 }
 
-void usbd_cdc_acm_send(uint8_t *buffer,uint16_t len)
+void usbd_cdc_acm_write(uint8_t *buffer,uint16_t len)
 {
-    //rt_ringbuffer_put(&rb_cdc_tx,buffer,len);
+    rt_ringbuffer_put(&rb_cdc_tx,buffer,len);
 }
+
 void usbd_cdc_acm_proccess(void)
 {
     if (dtr_enable) {
-#ifdef __RTTHREAD__
-        rt_sem_take(&cdc_tx_sem,RT_WAITING_FOREVER);
-#endif
-        int len = 0;//rt_ringbuffer_get(&rb_cdc_tx,write_buffer,256);
+        int len = rt_ringbuffer_data_len(&rb_cdc_tx);
         if(len > 0)
         {
+         rt_sem_take(&cdc_tx_sem,RT_WAITING_FOREVER);
+         len = rt_ringbuffer_get(&rb_cdc_tx,write_buffer,sizeof(write_buffer));
          usbd_ep_start_write(CDC_IN_EP, write_buffer, len);
         }
     }

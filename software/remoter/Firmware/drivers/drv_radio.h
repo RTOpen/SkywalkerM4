@@ -14,6 +14,7 @@ extern "C" {
 
 #define LLE_MODE_ORIGINAL_RX         (0x80) //如果配置LLEMODE时加上此宏，则接收第一字节为原始数据（原来为RSSI）
 
+extern void radio_set_channel(uint8_t ch);
 extern void radio_hw_init(void);
 
 #ifdef __cplusplus

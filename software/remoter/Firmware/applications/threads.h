@@ -14,7 +14,7 @@
 
 #define LED_THREAD_PRIORITY          (5)
 
-#define RADIO_THREAD_STACK_SIZE        (2048)
+#define RADIO_THREAD_STACK_SIZE        (1024)
 
 #define RADIO_THREAD_PRIORITY          (3)
 

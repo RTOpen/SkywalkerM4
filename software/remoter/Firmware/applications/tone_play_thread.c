@@ -4,19 +4,14 @@
 #include "tones.h"
 
 #define T 1000
-#ifdef __RTTHREAD__
+
 static struct rt_thread tone_play_thread;
 
 static uint8_t tone_play_thread_stack[TONE_THREAD_STACK_SIZE];
 
 static struct rt_event tone_event;
-#endif
-#ifdef __FREERTOS__
-static TaskHandle_t tone_play_thread;
-SemaphoreHandle_t tone_event;
-#endif
 
-static uint8_t tone_id = 0;
+static uint8_t tone_id = TONE_NONE;
 
 static const tone_t poweron_tones[] = 
     {
@@ -32,9 +27,15 @@ static const tone_t poweroff_tones[] =
     {D5,T/16},
     {C5,T/16},
     };
+
 static const tone_t btn_click_tones[] = 
 {
     {F5,T/16},
+};
+
+static const tone_t btn_long_click_tones[] =
+{
+    {G5,T/8},
 };
 
 static const tone_t warning_tones[] = 
@@ -84,7 +85,7 @@ static void play_tones(const tone_t *tones, uint16_t count, uint8_t volume)
 
 static void tone_play_thread_entry(void *parameter)
 {
-    uint32_t evt = 0;
+    rt_uint32_t evt = 0;
     rt_err_t ret = RT_EOK;
     
     play_tones(poweron_tones,sizeof(poweron_tones)/sizeof(tone_t),128);
@@ -107,6 +108,9 @@ static void tone_play_thread_entry(void *parameter)
         case TONE_BTN_CLICK:
             play_tones(btn_click_tones,sizeof(btn_click_tones)/sizeof(tone_t),128);
             break;
+        case TONE_BTN_LONG_CLICK:
+            play_tones(btn_long_click_tones,sizeof(btn_long_click_tones)/sizeof(tone_t),128);
+            break;
         case TONE_WARNING:
             play_tones(warning_tones,sizeof(warning_tones)/sizeof(tone_t),128);
             break;
@@ -123,9 +127,9 @@ static void tone_play_thread_entry(void *parameter)
         default:
             break;
         }
+        tone_id = TONE_NONE;
         }
      
-
     }
 }
 
