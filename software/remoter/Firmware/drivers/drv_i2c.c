@@ -2,16 +2,21 @@
 #include "board.h"
 #include "drv_i2c.h"
 
-#define  I2C_TIMEOUT      (50000)
+#define  I2C_TIMEOUT      (1000)
 
 int i2c_hw_init(void)
 {
+    uint32_t tick = rt_tick_get();
     GPIOB_ModeCfg(GPIO_Pin_13 | GPIO_Pin_12, GPIO_ModeIN_PU);
     I2C_Init(I2C_Mode_I2C, 400000, I2C_DutyCycle_16_9, I2C_Ack_Enable, I2C_AckAddr_7bit, TxAdderss);
     while (I2C_GetFlagStatus(I2C_FLAG_BUSY)) {
-        __nop();
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
+            return I2C_STATUS_TIMEOUT;
+        }
     }
-    return 0;
+    return I2C_STATUS_SUCCESS;
 }
 
 i2c_status_t i2c_start(void)
@@ -36,24 +41,28 @@ void i2c_stop(void)
 
 i2c_status_t i2c_transmit(uint8_t address, const uint8_t *data, uint16_t length)
 {
+    uint32_t tick = 0;
     i2c_status_t status = i2c_start();
 
     if (status != I2C_STATUS_SUCCESS) {
         return status;
     }
 
-    uint16_t timeout_timer = timer_read();
+    tick = rt_tick_get();
 
     I2C_Send7bitAddress(address, I2C_Direction_Transmitter);
     while (!I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
 
     for (uint8_t i = 0; i < length; i++) {
         while (!I2C_GetFlagStatus(I2C_FLAG_TXE)) {
-            if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+            if(rt_tick_get() - tick > I2C_TIMEOUT)
+            {
                 return I2C_STATUS_TIMEOUT;
             }
         }
@@ -61,7 +70,9 @@ i2c_status_t i2c_transmit(uint8_t address, const uint8_t *data, uint16_t length)
     }
 
     while (!I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
@@ -72,24 +83,29 @@ i2c_status_t i2c_transmit(uint8_t address, const uint8_t *data, uint16_t length)
 
 i2c_status_t i2c_receive(uint8_t address, uint8_t *data, uint16_t length)
 {
+    uint32_t tick = 0;
+
     i2c_status_t status = i2c_start();
 
     if (status != I2C_STATUS_SUCCESS) {
         return status;
     }
 
-    uint16_t timeout_timer = timer_read();
+    tick = rt_tick_get();
 
     I2C_Send7bitAddress(address, I2C_Direction_Receiver);
     while (!I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
 
     for (uint8_t i = 0; i < length; i++) {
         while (!I2C_GetFlagStatus(I2C_FLAG_RXNE)) {
-            if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+            if(rt_tick_get() - tick > I2C_TIMEOUT)
+            {
                 return I2C_STATUS_TIMEOUT;
             }
         }
@@ -131,29 +147,36 @@ i2c_status_t i2c_write_reg16(uint8_t address, uint16_t regaddr, const uint8_t *d
 
 i2c_status_t i2c_read_reg(uint8_t address, uint8_t regaddr, uint8_t *data, uint16_t length)
 {
+    uint32_t tick = 0;
     i2c_status_t status = i2c_start();
 
     if (status != I2C_STATUS_SUCCESS) {
         return status;
     }
 
-    uint16_t timeout_timer = timer_read();
+    tick = rt_tick_get();
 
     I2C_Send7bitAddress(address, I2C_Direction_Transmitter);
     while (!I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
 
     while (!I2C_GetFlagStatus(I2C_FLAG_TXE)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
     I2C_SendData(regaddr);
     while (!I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
@@ -166,7 +189,9 @@ i2c_status_t i2c_read_reg(uint8_t address, uint8_t regaddr, uint8_t *data, uint1
 
     I2C_Send7bitAddress(address, I2C_Direction_Receiver);
     while (!I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
@@ -175,7 +200,8 @@ i2c_status_t i2c_read_reg(uint8_t address, uint8_t regaddr, uint8_t *data, uint1
 
     for (uint8_t i = 0; i < length; i++) {
         while (!I2C_GetFlagStatus(I2C_FLAG_RXNE)) {
-            if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+            if(rt_tick_get() - tick > I2C_TIMEOUT)
+            {
                 return I2C_STATUS_TIMEOUT;
             }
         }
@@ -192,35 +218,44 @@ i2c_status_t i2c_read_reg(uint8_t address, uint8_t regaddr, uint8_t *data, uint1
 
 i2c_status_t i2c_read_reg16(uint8_t address, uint16_t regaddr, uint8_t *data, uint16_t length)
 {
+    uint32_t tick = 0;
     i2c_status_t status = i2c_start();
 
     if (status != I2C_STATUS_SUCCESS) {
         return status;
     }
 
-    uint16_t timeout_timer = timer_read();
+    tick = rt_tick_get();
 
     I2C_Send7bitAddress(address, I2C_Direction_Transmitter);
     while (!I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
 
     while (!I2C_GetFlagStatus(I2C_FLAG_TXE)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
     I2C_SendData((uint8_t)((regaddr & 0xFF00) >> 8));
     while (!I2C_GetFlagStatus(I2C_FLAG_TXE)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
     I2C_SendData((uint8_t)(regaddr & 0xFF));
     while (!I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
@@ -233,7 +268,9 @@ i2c_status_t i2c_read_reg16(uint8_t address, uint16_t regaddr, uint8_t *data, ui
 
     I2C_Send7bitAddress(address, I2C_Direction_Receiver);
     while (!I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED)) {
-        if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+        rt_thread_delay(1);
+        if(rt_tick_get() - tick > I2C_TIMEOUT)
+        {
             return I2C_STATUS_TIMEOUT;
         }
     }
@@ -242,7 +279,8 @@ i2c_status_t i2c_read_reg16(uint8_t address, uint16_t regaddr, uint8_t *data, ui
 
     for (uint8_t i = 0; i < length; i++) {
         while (!I2C_GetFlagStatus(I2C_FLAG_RXNE)) {
-            if ((timer_elapsed(timeout_timer) > I2C_TIMEOUT)) {
+            if(rt_tick_get() - tick > I2C_TIMEOUT)
+            {
                 return I2C_STATUS_TIMEOUT;
             }
         }
