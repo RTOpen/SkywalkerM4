@@ -19,8 +19,12 @@ typedef enum
 typedef struct
 {
  int16_t channels[CHANNEL_MAX];
+ uint32_t last_update;
  uint8_t battery_level;
+ int8_t rssi;
  uint8_t poweron_flag : 1;
+ uint8_t linkup_flag:1;
+ uint8_t bind_flag:1;
  uint8_t calibra_step;
 } radio_data_t;
 
