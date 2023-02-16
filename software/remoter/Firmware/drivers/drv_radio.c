@@ -10,7 +10,7 @@
  * GLOBAL TYPEDEFS
  */
 uint8_t taskID;
-static uint8_t rf_tx_buffer[32];
+static payload_t rf_tx_payload = {0};
 static rfConfig_t rf_config;
 int8_t rssi = -100;
 
@@ -40,9 +40,8 @@ void RF_2G4StatusCallBack(uint8_t sta, uint8_t crc, uint8_t *rxBuf)
         case TX_MODE_RX_DATA:
         {
             if (crc == 0) {
-                uint8_t len = rxBuf[1];
-                rssi = rxBuf[0];
-                usbd_cdc_acm_write(&rxBuf[2],len);
+                DataLinkRxPacket_t *RxPacket = (DataLinkRxPacket_t*)&rxBuf[0];
+                usbd_cdc_acm_write(RxPacket->payload.data,RxPacket->len -1);
             } else {
                 if (crc & (1<<0)) {
                     rt_kprintf("crc error\n");
@@ -126,7 +125,7 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
     {
         uint8_t state;
         RF_Shut();
-        RF_Tx(rf_tx_buffer, 16, 0xFF, 0xFF);
+        RF_Tx(&rf_tx_payload, 16, 0xFF, 0xFF);
         tmos_start_task(taskID, SBP_RF_PERIODIC_EVT, 20);
         return events ^ SBP_RF_PERIODIC_EVT;
     }
