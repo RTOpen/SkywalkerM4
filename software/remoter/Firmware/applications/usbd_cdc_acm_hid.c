@@ -185,9 +185,9 @@ static struct usbd_endpoint hid_in_ep = {
     .ep_addr = HID_INT_EP
 };
 
-#define BUFFER_SIZE (64)
-USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t read_buffer[BUFFER_SIZE];
-USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t write_buffer[BUFFER_SIZE];
+#define BUFFER_SIZE (128)
+USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t read_buffer[64];
+USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t write_buffer[64];
 
 uint8_t cdc_tx_buffer[BUFFER_SIZE];
 uint8_t cdc_rx_buffer[BUFFER_SIZE];
@@ -295,6 +295,11 @@ void usbd_cdc_acm_set_dtr(uint8_t intf, bool dtr)
 void usbd_cdc_acm_write(uint8_t *buffer,uint16_t len)
 {
     rt_ringbuffer_put(&rb_cdc_tx,buffer,len);
+}
+
+rt_size_t usbd_cdc_acm_read(uint8_t *buffer,uint16_t len)
+{
+    return rt_ringbuffer_get(&rb_cdc_rx,buffer,len);
 }
 
 void usbd_cdc_acm_proccess(void)

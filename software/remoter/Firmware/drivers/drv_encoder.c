@@ -42,7 +42,7 @@
  **************************************************************************************************/
 typedef struct
 {
- uint16_t pos;
+ int16_t pos;
  uint8_t state;
 }encoder_data_t;
 
@@ -114,7 +114,7 @@ void encoder_hw_init(void)
  *
  * @return  pos - current keys status
  **************************************************************************************************/
-uint16_t encoder_read_pos(uint8_t id)
+int16_t encoder_read_pos(uint8_t id)
 {
     if(id >= ROTARY_ENCODER_NUM)
         return 0;

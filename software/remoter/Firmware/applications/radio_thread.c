@@ -57,7 +57,22 @@ static void btn_clicked_callback(void*param)
     button_t *btn = (button_t*)param;
     RT_ASSERT(btn != RT_NULL);
     tones_play_background(TONE_BTN_CLICK);
+    switch(btn->key_id)
+    {
+    case KEY_SW_HOME:
+        break;
+    case KEY_SW_LEFT:
+        if(radio.flight_mode != radio.new_mode)
+        {
+            radio.flight_mode = radio.new_mode;
+        }
+        break;
+    case KEY_SW_RIGHT:
 
+        break;
+    case KEY_SW_POWER:
+        break;
+    }
 }
 
 static void btn_double_clicked_callback(void*param)
@@ -89,6 +104,7 @@ static void btn_long_press_callback(void*param)
 static void radio_thread_entry(void *parameter)
 {
     uint32_t timeout = 0;
+    int16_t left_last_pos = encoder_read_pos(ROTARY_ENCODER_A);
     if(!params.calibraed)
     {
         radio.calibra_step = JOYSTICK_CALIBRA_STEP1;
@@ -116,10 +132,45 @@ static void radio_thread_entry(void *parameter)
         channels[PITCH] = adc_read(ADC_CHANNEL_4);
         channels[YAW] = adc_read(ADC_CHANNEL_2);
         channels[THROTTLE] = adc_read(ADC_CHANNEL_1);
-        channels[AUX1] = adc_read(ADC_CHANNEL_5);
-        channels[AUX2] = encoder_read_pos(ROTARY_ENCODER_A);// = adc_read(ADC_CHANNEL_TEMP);
-        channels[AUX3] = encoder_read_pos(ROTARY_ENCODER_B);
-        channels[AUX4]++;
+        switch (radio.flight_mode) {
+            case FLIGHT_MODE_STAB:
+                channels[AUX1] = 1000;
+                break;
+            case FLIGHT_MODE_ALT_HOLD:
+                channels[AUX1] = 1500;
+                break;
+            case FLIGHT_MODE_LOITER:
+                channels[AUX1] = 2000;
+                break;
+            default:
+                break;
+        }
+        channels[AUX2] = 1000;
+        channels[AUX3] = 1000;
+        if(encoder_read_pos(ROTARY_ENCODER_A)!=left_last_pos)
+        {
+            if(abs(encoder_read_pos(ROTARY_ENCODER_A)-left_last_pos) >= 2)
+            {
+                tones_play_background(TONE_BTN_CLICK);
+                if(encoder_read_pos(ROTARY_ENCODER_A) > left_last_pos)
+                {
+                    radio.new_mode++;
+                    if(radio.new_mode >= FLIGHT_MODE_USER)
+                    {
+                        radio.new_mode = FLIGHT_MODE_STAB;
+                    }
+                }else {
+                    if(radio.new_mode == FLIGHT_MODE_STAB)
+                    {
+                        radio.new_mode = FLIGHT_MODE_LOITER;
+                    }else {
+                        radio.new_mode--;
+                    }
+                }
+                left_last_pos =  encoder_read_pos(ROTARY_ENCODER_A);
+            }
+        }
+
         if(radio.calibra_step != JOYSTICK_CALIBRA_NONE)
         {
             switch(radio.calibra_step)
@@ -211,6 +262,7 @@ static void radio_thread_entry(void *parameter)
                     usbd_hid_send_report(HID_Buffer,19);
         }
      button_process(key_scan());
+     radio.last_update = rt_tick_get();
      rt_thread_delay(20);
     }
 }
@@ -219,7 +271,8 @@ static void radio_thread_entry(void *parameter)
 int radio_thread_init(void)
 {
     rt_err_t result = RT_EOK;
-    
+    radio.flight_mode = FLIGHT_MODE_ALT_HOLD;
+    radio.new_mode = radio.flight_mode;
     result = rt_thread_init(&radio_thread, "radio",
         radio_thread_entry, RT_NULL, 
         &radio_thread_stack[0], sizeof(radio_thread_stack), 

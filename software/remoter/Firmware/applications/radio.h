@@ -21,11 +21,13 @@ typedef struct
  int16_t channels[CHANNEL_MAX];
  uint32_t last_update;
  uint8_t battery_level;
- int8_t rssi;
+ uint8_t rssi;
  uint8_t poweron_flag : 1;
  uint8_t linkup_flag:1;
  uint8_t bind_flag:1;
  uint8_t calibra_step;
+ uint8_t flight_mode;
+ uint8_t new_mode;
 } radio_data_t;
 
 typedef enum
@@ -40,6 +42,14 @@ typedef enum
   TONE_CALIBRA_STEP2,    //校准声音
   TONE_CALIBRA_STEP3,    //校准声音
 }tone_id_t;
+
+typedef enum
+{
+  FLIGHT_MODE_STAB=0x00,
+  FLIGHT_MODE_ALT_HOLD,
+  FLIGHT_MODE_LOITER,
+  FLIGHT_MODE_USER,
+}flight_mode_t;
 
 #define NORM_MIN_VALUE  1000
 #define NORM_MID_VALUE  1500

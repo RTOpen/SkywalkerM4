@@ -1,6 +1,6 @@
 #ifndef __PARAMS_H__
 #define __PARAMS_H__
-
+#include  <stdlib.h>
 #include "board.h"
 
 #define MAX_RC_CHANNELS     (8)  //遥控器最大通道数

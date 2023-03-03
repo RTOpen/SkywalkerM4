@@ -7,9 +7,13 @@ uint16_t gui_color = 0x0000;
 uint16_t gui_bgcolor = 0x2AD3;
 static radio_data_t data;
 static const char *channel_name[CHANNEL_MAX] = {"ROLL","PITC","YAW ","THRO","AUX1","AUX2","AUX3","AUX4"};
+static const char *mode_name[3] = {"STAB","ALT_HOLD","LOITER"};
 static char disp_buffer[32];
 
 uint8_t page_index = 0;
+uint8_t mode_flash = 0;
+uint32_t mode_last_tick = 0;
+uint8_t mode_reflush = 0;
 
 static void statusbar_init(void)
 {
@@ -52,12 +56,16 @@ static void statusbar_update(void)
 static void page0_init(void)
 {
     uint8_t i = 0;
+
     lcd_draw_image9patch(gImage_bg,40,40,10,2,42,236,196);
     for (i = 0; i < 6; ++i) {
             data.channels[i] = radio.channels[i];
             sprintf(disp_buffer,"%s:% 4d",channel_name[i],data.channels[i]);
             lcd_draw_text(10,60+i*20,disp_buffer,gui_color,gui_bgcolor);
     }
+         data.flight_mode = radio.flight_mode;
+         sprintf(disp_buffer,"%s:%s","Mode",mode_name[radio.flight_mode]);
+         lcd_draw_text(10,190,disp_buffer,gui_color,gui_bgcolor);
 }
 static void page0_update(void)
 {
@@ -69,6 +77,30 @@ static void page0_update(void)
             sprintf(disp_buffer,"%s:% 4d",channel_name[i],data.channels[i]);
             lcd_draw_text(10,60+i*20,disp_buffer,gui_color,gui_bgcolor);
         }
+    }
+    if(radio.new_mode != radio.flight_mode)
+     {
+        if((rt_tick_get() - mode_last_tick) > 500)
+        {
+            mode_last_tick =  rt_tick_get();
+            mode_flash = !mode_flash;
+            mode_reflush = 1;
+            lcd_fill_rect(80, 190, 200, 210, gui_bgcolor);
+            if(mode_flash)
+            {
+              sprintf(disp_buffer,"%s:%s","Mode",mode_name[radio.new_mode]);
+              lcd_draw_text(80,190,mode_name[radio.new_mode],gui_color,gui_bgcolor);
+            }else {
+              sprintf(disp_buffer,"%s:%s","Mode",mode_name[radio.new_mode]);
+              lcd_draw_text(80,190,mode_name[radio.new_mode],gui_color,LIGHTGREEN);
+            }
+        }
+     }else if((data.flight_mode != radio.flight_mode)|| mode_reflush ) {
+         mode_reflush = 0;
+         data.flight_mode = radio.flight_mode;
+         lcd_fill_rect(80, 190, 200, 210, gui_bgcolor);
+         sprintf(disp_buffer,"%s:%s","Mode",mode_name[radio.flight_mode]);
+         lcd_draw_text(80,190,mode_name[radio.flight_mode],gui_color,gui_bgcolor);
     }
 }
 static void page1_init(void)

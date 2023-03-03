@@ -2,6 +2,7 @@
 #define __DATALINK_H__
 #include <stdint.h>
 
+#define DATALINK_MAGIC             (0xaa)
 #define DATALINK_MAX_PAYLOAD_SIZE  (32)
 
 typedef enum
@@ -11,7 +12,7 @@ typedef enum
     DATA_TYPE_BIND = 0x01,
 
     DATA_TYPE_RC = 0x02,
-	
+
     DATA_TYPE_ANOLINK = 0x03,
     
     DATA_TYPE_MAVLINK = 0x04,
@@ -20,7 +21,7 @@ typedef enum
 
     DATA_TYPE_UNDEFINE = 0xff,
 
-} command_t;
+} data_type_t;
 
 #pragma pack (1)
 
@@ -32,10 +33,19 @@ uint8_t data[DATALINK_MAX_PAYLOAD_SIZE -1]; //< Data
 
 typedef struct
 {
-  uint8_t rssi;
+  int8_t rssi;
   uint8_t len;                         //< len of payload
   payload_t payload;
 } DataLinkRxPacket_t;
+
+typedef struct
+{
+  uint8_t magic;
+  uint8_t checksum;
+  uint8_t rssi;
+  uint8_t len;                         //< len of payload
+  payload_t payload;
+} DataLinkUARTPacket_t;
 
 #pragma pack ()
 

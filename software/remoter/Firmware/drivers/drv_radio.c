@@ -5,6 +5,8 @@
 #include "drv_radio.h"
 #include "HAL.h"
 #include "usbd_cdc_acm_hid.h"
+#include "datalink.h"
+#include "radio.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -13,7 +15,8 @@ uint8_t taskID;
 static payload_t rf_tx_payload = {0};
 static rfConfig_t rf_config;
 int8_t rssi = -100;
-
+static uint32_t last_update = 0;
+static uint8_t data_type = DATA_TYPE_ANOLINK;
 /*********************************************************************
  * @fn      RF_2G4StatusCallBack
  *
@@ -41,7 +44,14 @@ void RF_2G4StatusCallBack(uint8_t sta, uint8_t crc, uint8_t *rxBuf)
         {
             if (crc == 0) {
                 DataLinkRxPacket_t *RxPacket = (DataLinkRxPacket_t*)&rxBuf[0];
-                usbd_cdc_acm_write(RxPacket->payload.data,RxPacket->len -1);
+                radio.rssi = 128 + RxPacket->rssi;
+                if(RxPacket->len > 0)
+                {
+                   if((RxPacket->payload.type==DATA_TYPE_MAVLINK) || (RxPacket->payload.type==DATA_TYPE_ANOLINK))
+                   {
+                    usbd_cdc_acm_write(RxPacket->payload.data,RxPacket->len -1);
+                   }
+                }
             } else {
                 if (crc & (1<<0)) {
                     rt_kprintf("crc error\n");
@@ -65,9 +75,6 @@ void RF_2G4StatusCallBack(uint8_t sta, uint8_t crc, uint8_t *rxBuf)
                 rssi = rxBuf[0];
                 len = rxBuf[1];
                 
-//                for (i = 0; i < rxBuf[1]; i++) {
-//                    rt_kprintf("%x ", rxBuf[i + 2]);
-//                }
             } else {
                 if (crc & (1<<0)) {
                     rt_kprintf("crc error\n");
@@ -124,8 +131,22 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & SBP_RF_PERIODIC_EVT)
     {
         uint8_t state;
+        uint8_t len = 0;
         RF_Shut();
-        RF_Tx(&rf_tx_payload, 16, 0xFF, 0xFF);
+        if(last_update != radio.last_update)
+        {
+        last_update = radio.last_update;
+        rf_tx_payload.type = DATA_TYPE_RC;
+        memcpy(rf_tx_payload.data,radio.channels,CHANNEL_MAX*2);
+        RF_Tx(&rf_tx_payload.type, CHANNEL_MAX*2+1, 0xFF, 0xFF);
+        }else {
+        len = usbd_cdc_acm_read(rf_tx_payload.data,31);
+        if(len > 0)
+        {
+        rf_tx_payload.type = data_type;
+        RF_Tx(&rf_tx_payload.type, len +1, 0xFF, 0xFF);
+        }
+        }
         tmos_start_task(taskID, SBP_RF_PERIODIC_EVT, 20);
         return events ^ SBP_RF_PERIODIC_EVT;
     }

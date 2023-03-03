@@ -54,7 +54,7 @@ void encoder_hw_init(void);
 /**
  * @brief   Read the position of Rotary Encoder
  */
-uint16_t encoder_read_pos(uint8_t id);
+int16_t encoder_read_pos(uint8_t id);
 
 
 

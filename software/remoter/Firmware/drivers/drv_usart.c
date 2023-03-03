@@ -12,7 +12,7 @@
 #include "rtdevice.h"
 #include <string.h>
 
-#define RT_UART_RINGBUF_SIZE        128
+#define RT_UART_RINGBUF_SIZE        256
 static struct rt_ringbuffer rt_uart_ringbuf;
 ALIGN(RT_ALIGN_SIZE) uint8_t rt_uart_buffer[RT_UART_RINGBUF_SIZE];
 
