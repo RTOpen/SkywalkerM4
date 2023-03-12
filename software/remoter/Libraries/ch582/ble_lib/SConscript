@@ -1,0 +1,10 @@
+from building import *
+import os
+
+cwd = GetCurrentDir()
+src = Glob('*.c')
+CPPPATH = [cwd]
+
+group = DefineGroup('ble_lib', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')

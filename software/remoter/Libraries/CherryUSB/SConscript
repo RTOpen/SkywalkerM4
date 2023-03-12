@@ -76,6 +76,8 @@ if GetDepend(['PKG_CHERRYUSB_DEVICE']):
             src += Glob('port/ch32/usb_dc_usbhs.c')
         else:
             src += Glob('port/ch32/usb_dc_usbfs.c')
+    if GetDepend(['PKG_CHERRYUSB_DEVICE_CH58X']):
+        src += Glob('port/ch32/usb_ch58x_dc_usbfs.c')
 
 # USB HOST
 if GetDepend(['PKG_CHERRYUSB_HOST']):

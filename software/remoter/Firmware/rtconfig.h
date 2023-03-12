@@ -4,16 +4,6 @@
 #define __RTTHREAD_CFG_H__
 
 #include <rtthread.h>
-#include "finsh_config.h"
-
-#if defined(__CC_ARM) || defined(__CLANG_ARM)
-#include "RTE_Components.h"
-
-#if defined(RTE_USING_FINSH)
-#define RT_USING_FINSH
-#endif //RTE_USING_FINSH
-
-#endif //(__CC_ARM) || (__CLANG_ARM)
 
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>Basic Configuration
@@ -143,6 +133,11 @@
     // </h>
 #endif
 
+#define PKG_USING_CHERRYUSB
+#define PKG_CHERRYUSB_DEVICE
+#define PKG_CHERRYUSB_DEVICE_CDC
+#define PKG_CHERRYUSB_DEVICE_HID
+#define PKG_CHERRYUSB_DEVICE_CH58X
 // <<< end of configuration section >>>
 
 #endif

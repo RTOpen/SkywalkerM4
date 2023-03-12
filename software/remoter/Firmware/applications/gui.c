@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "resource.h"
 #include "board.h"
 #include "gui.h"
