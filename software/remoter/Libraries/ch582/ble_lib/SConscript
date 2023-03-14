@@ -4,7 +4,9 @@ import os
 cwd = GetCurrentDir()
 src = Glob('*.c')
 CPPPATH = [cwd]
+LIBS = ['CH58xBLE']
+LIBPATH = [cwd]
 
-group = DefineGroup('ble_lib', src, depend = [''], CPPPATH = CPPPATH)
+group = DefineGroup('ble_lib', src, depend = [''],LIBS = LIBS, LIBPATH = LIBPATH, CPPPATH = CPPPATH)
 
 Return('group')

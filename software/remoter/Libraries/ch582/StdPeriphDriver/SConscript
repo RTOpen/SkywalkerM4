@@ -4,7 +4,9 @@ import os
 cwd = GetCurrentDir()
 src = Glob('*.c')
 CPPPATH = [cwd+'/inc']
+LIBS = ['ISP583']
+LIBPATH = [cwd]
 
-group = DefineGroup('StdPeriphDriver', src, depend = [''], CPPPATH = CPPPATH)
+group = DefineGroup('StdPeriphDriver', src, depend = [''],LIBS = LIBS, LIBPATH = LIBPATH, CPPPATH = CPPPATH)
 
 Return('group')
