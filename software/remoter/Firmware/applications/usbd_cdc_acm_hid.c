@@ -2,6 +2,7 @@
 #include "usbd_core.h"
 #include "usbd_cdc.h"
 #include "usbd_hid.h"
+#include "rtdevice.h"
 
 
 /*!< endpoint address */
