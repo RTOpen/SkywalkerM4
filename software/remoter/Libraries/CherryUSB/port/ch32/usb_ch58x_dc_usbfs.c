@@ -414,6 +414,11 @@ int usb_dc_init(void)
     return 0;
 }
 
+int usb_dc_deinit(void)
+{
+    return 0;
+}
+
 /**
  * @brief            USB interrupt processing function
  * @pre              None

@@ -49,21 +49,13 @@
 /* Device Drivers */
 
 #define RT_USING_DEVICE_IPC
-#define RT_USING_SERIAL
-#define RT_USING_SERIAL_V1
-#define RT_SERIAL_RB_BUFSZ 64
-#define RT_USING_I2C
-#define RT_USING_I2C_BITOPS
-#define RT_USING_PIN
-#define RT_USING_RTC
-#define RT_USING_WDT
+
 
 /* Using USB */
 
 
 /* C/C++ and POSIX layer */
 
-#define RT_LIBC_DEFAULT_TIMEZONE 8
 
 /* POSIX (Portable Operating System Interface) layer */
 

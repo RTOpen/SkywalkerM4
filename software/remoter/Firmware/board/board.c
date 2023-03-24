@@ -27,24 +27,11 @@ static uint32_t _SysTick_Config(uint32_t ticks)
     return 0;
 }
 
-#if defined(RT_USING_USER_MAIN) && defined(RT_USING_HEAP)
-#define RT_HEAP_SIZE 4096
-static uint8_t rt_heap[RT_HEAP_SIZE];     // heap default size: 4K(1024 * 4)
-RT_WEAK void *rt_heap_begin_get(void)
-{
-    return rt_heap;
-}
-
-RT_WEAK void *rt_heap_end_get(void)
-{
-    return rt_heap + RT_HEAP_SIZE-1;
-}
-#endif
 
 /**
  * This function will initial your board.
  */
-void rt_hw_board_init()
+void rt_hw_board_init(void)
 {
     /* Set system clock */
     SetSysClock(CLK_SOURCE_PLL_80MHz);
@@ -56,9 +43,6 @@ void rt_hw_board_init()
     rt_components_board_init();
 #endif
 
-#if defined(RT_USING_USER_MAIN) && defined(RT_USING_HEAP)
-    rt_system_heap_init(rt_heap_begin_get(), rt_heap_end_get());
-#endif
 }
 
 __HIGH_CODE

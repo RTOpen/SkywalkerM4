@@ -133,7 +133,7 @@ void rt_components_init(void)
 #ifdef RT_USING_USER_MAIN
 
 void rt_application_init(void);
-void rt_hw_board_init(void);
+extern void rt_hw_board_init(void);
 int rtthread_startup(void);
 
 #ifdef __ARMCC_VERSION
