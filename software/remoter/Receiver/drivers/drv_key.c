@@ -1,6 +1,6 @@
 
-/* 头文件包含 */
 #include "HAL.h"
+#include "drv_key.h"
 
 /**************************************************************************************************
  *                                        GLOBAL VARIABLES
@@ -18,14 +18,8 @@
  **************************************************************************************************/
 void key_hw_init(void)
 {
-    KEY_HOME_DIR;
-    KEY_HOME_PU;
-    KEY_LEFT_DIR;
-    KEY_LEFT_PU;
-    KEY_RIGHT_DIR;
-    KEY_RIGHT_PU;
-    KEY_POWER_DIR;
-    KEY_POWER_PU;
+    KEY_BIND_DIR;
+    KEY_BIND_PU;
 }
 
 /**************************************************************************************************
@@ -41,21 +35,10 @@ uint8_t key_scan(void)
 {
     uint8_t keys = 0;
 
-    if(KEY_HOME_IN)
+    if(KEY_BIND_IN)
     {
-        keys |= KEY_SW_HOME;
+        keys |= KEY_SW_BIND;
     }
-    if(KEY_LEFT_IN)
-    {
-        keys |= KEY_SW_LEFT;
-    }
-    if(KEY_RIGHT_IN)
-    {
-        keys |= KEY_SW_RIGHT;
-    }
-    if(KEY_POWER_IN)
-    {
-        keys |= KEY_SW_POWER;
-    }
+
     return keys;
 }
