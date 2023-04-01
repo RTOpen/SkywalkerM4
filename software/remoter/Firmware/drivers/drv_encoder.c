@@ -1,11 +1,11 @@
 
-/* Í·ÎÄ¼þ°üº¬ */
+/* Í·ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ */
 #include "board.h"
 #include "HAL.h"
 
 /*
    NOTE:
-   - Quadrature encoder makes two waveforms that are 90¡ã out of phase:
+   - Quadrature encoder makes two waveforms that are 90ï¿½ï¿½ out of phase:
                            _______         _______         __
                   PinA ___|       |_______|       |_______|   PinA
           CCW <--              _______         _______
@@ -125,7 +125,7 @@ int16_t encoder_read_pos(uint8_t id)
 /*********************************************************************
  * @fn      GPIOA_IRQHandler
  *
- * @brief   GPIOAÖÐ¶Ïº¯Êý
+ * @brief   GPIOAï¿½Ð¶Ïºï¿½ï¿½ï¿½
  *
  * @return  none
  */
@@ -152,14 +152,14 @@ void GPIOA_IRQHandler(void)
 /*********************************************************************
  * @fn      GPIOB_IRQHandler
  *
- * @brief   GPIOBÖÐ¶Ïº¯Êý
+ * @brief   GPIOBï¿½Ð¶Ïºï¿½ï¿½ï¿½
  *
  * @return  none
  */
 __HIGH_CODE
 void GPIOB_IRQHandler(void)
 {
-    uint16_t flag = GPIOA_ReadITFlagPort();
+    uint16_t flag = GPIOB_ReadITFlagPort();
     if(flag&ROTARY_ENCODER_B_A_BV)
     {
     uint16_t astat = (R32_PB_PIN & ROTARY_ENCODER_B_A_BV);

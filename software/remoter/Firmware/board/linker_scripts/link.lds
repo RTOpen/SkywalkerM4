@@ -199,7 +199,6 @@ SECTIONS
 	{
 		. = ALIGN(4);
 		PROVIDE(_eusrstack = . );
-	    __freertos_irq_stack_top = .;
 	} >RAM  
 }
 
