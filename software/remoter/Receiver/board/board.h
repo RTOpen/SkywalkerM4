@@ -20,7 +20,6 @@
 #include <rtthread.h>
 #include "CH58x_common.h"
 #include "drv_usart.h"
-#include "drv_adc.h"
 #include "drv_led.h"
 #include "drv_key.h"
 #include "drv_radio.h"
