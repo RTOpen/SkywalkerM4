@@ -22,6 +22,7 @@ static void statusbar_init(void)
     lcd_set_font(&ascii_font20);
     lcd_draw_text(70,10,"Remoter",gui_color,gui_bgcolor);
     lcd_draw_image(gImage_battery_0,15,5,40,28);
+
     lcd_draw_image(gImage_rssi_3,185,5,33,28);
 }
 static void statusbar_update(void)
@@ -51,6 +52,22 @@ static void statusbar_update(void)
    else
       {
           lcd_draw_image(gImage_battery_4,15,5,40,28);
+      }
+    
+    if(radio.rssi < 20)
+   {
+       lcd_draw_image(gImage_rssi_0,185,5,33,28);
+   }else if(radio.rssi < 50)
+   {
+       lcd_draw_image(gImage_rssi_1,185,5,33,28);
+   }
+   else if(radio.rssi < 80)
+      {
+          lcd_draw_image(gImage_rssi_2,185,5,33,28);
+      }
+   else if(radio.rssi < 128)
+      {
+          lcd_draw_image(gImage_rssi_3,185,5,33,28);
       }
 }
 
