@@ -34,7 +34,7 @@ static uint32_t _SysTick_Config(uint32_t ticks)
 void rt_hw_board_init(void)
 {
     /* Set system clock */
-    SetSysClock(CLK_SOURCE_PLL_80MHz);
+    SetSysClock(CLK_SOURCE_PLL_60MHz);
     /* System Tick Configuration */
     _SysTick_Config(GetSysClock() / RT_TICK_PER_SECOND);
 

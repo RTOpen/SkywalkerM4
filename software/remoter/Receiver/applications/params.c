@@ -18,7 +18,7 @@ static uint32_t checksum(uint8_t *data,uint16_t len)
     }
     return sum;
 }
-//¼ÓÔØÒ£¿ØÆ÷²ÎÊı
+//åŠ è½½é¥æ§å™¨å‚æ•°
 rt_err_t params_load(params_t * params)
 {
     if(EEPROM_READ(EEPROM_USER_START_ADDR,(uint8_t*)params,sizeof(params_t)) != 0)
@@ -28,7 +28,7 @@ rt_err_t params_load(params_t * params)
     return RT_EOK;
 }
 
-//±£´æÒ£¿ØÆ÷²ÎÊı
+//ä¿å­˜é¥æ§å™¨å‚æ•°
 rt_err_t params_save(params_t * params)
 {    
     params->checksum = checksum((uint8_t *)params,sizeof(params_t) - 4);
@@ -37,7 +37,7 @@ rt_err_t params_save(params_t * params)
 }
 
 
-//Ğ£ÑéÒ£¿ØÆ÷²ÎÊıÓĞĞ§ĞÔ
+//æ ¡éªŒé¥æ§å™¨å‚æ•°æœ‰æ•ˆæ€§
 rt_err_t params_is_valid(params_t * params)
 {    
     uint32_t cks;
@@ -61,7 +61,7 @@ rt_err_t params_is_valid(params_t * params)
 
 
 
-//»Ö¸´Ò£¿ØÆ÷²ÎÊı³ö³§ÉèÖÃ
+//æ¢å¤é¥æ§å™¨å‚æ•°å‡ºå‚è®¾ç½®
 void params_load_default(params_t * params)
 {
     uint32_t i;
@@ -73,18 +73,18 @@ void params_load_default(params_t * params)
 }
 
 
-//³õÊ¼»¯Ò£¿ØÆ÷²ÎÊı
+//åˆå§‹åŒ–é¥æ§å™¨å‚æ•°
 rt_err_t params_init(void)
 {
     rt_err_t ret = RT_EOK;
     
-    //¼ÓÔØÒ£¿ØÆ÷²ÎÊıµ½rc_params
+    //åŠ è½½é¥æ§å™¨å‚æ•°åˆ°rc_params
     params_load(&params);
         
-    //Ğ£ÑéÒ£¿ØÆ÷²ÎÊı
+    //æ ¡éªŒé¥æ§å™¨å‚æ•°
     if (params_is_valid(&params)!=RT_EOK)
     {
-        //»Ö¸´µ½Ä¬ÈÏÖµ
+        //æ¢å¤åˆ°é»˜è®¤å€¼
         params_load_default(&params);
         
         

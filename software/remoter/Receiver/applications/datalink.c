@@ -65,7 +65,7 @@ uint8_t datalink_parse_char(DataLinkUARTPacket_t *pkg,uint8_t ch)
             {
                     if (parser.checksum != pkg->checksum)
                     {
-                        parser.state = STAT_SYNC;  //Ö¡Ğ£Ñé´íÎó£¬ÖØĞÂ½ÓÊÕÏÂÒ»Ö¡
+                        parser.state = STAT_SYNC;  //å¸§æ ¡éªŒé”™è¯¯ï¼Œé‡æ–°æ¥æ”¶ä¸‹ä¸€å¸§
                         parser.error_count++;
                         return 0;
                     }

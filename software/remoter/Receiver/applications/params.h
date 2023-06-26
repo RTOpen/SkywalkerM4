@@ -4,15 +4,15 @@
 #include "board.h"
 
 
-//ÌøÆµĞòÁĞ³¤¶È
+//è·³é¢‘åºåˆ—é•¿åº¦
 #define HOPPING_LENGTH    8
 
 
 typedef struct{
         uint32_t magic;
-        uint8_t  mode;      //Ò¡¸ËÄ£Ê½
-        uint8_t  bind;      //ÊÇ·ñÒÑĞ£×¼
-        uint16_t  product_id; //²úÆ·ID
+        uint8_t  mode;      //æ‘‡æ†æ¨¡å¼
+        uint8_t  bind;      //æ˜¯å¦å·²æ ¡å‡†
+        uint16_t  product_id; //äº§å“ID
 
         uint32_t checksum;
 } params_t;
