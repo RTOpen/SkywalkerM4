@@ -15,7 +15,8 @@ typedef void (*BtnCallback)(void*);
 
 
 typedef enum {
-	PRESS_DOWN = 0,
+    NONE_PRESS = 0,
+	PRESS_DOWN,
 	PRESS_UP,
 	PRESS_REPEAT,
 	SINGLE_CLICK,
@@ -23,7 +24,6 @@ typedef enum {
 	LONG_RRESS_START,
 	LONG_PRESS_HOLD,
 	number_of_event,
-	NONE_PRESS
 }PressEvent;
 
 typedef struct {
