@@ -1,5 +1,5 @@
 
-/* Í·ÎÄ¼ş°üº¬ */
+/* å¤´æ–‡ä»¶åŒ…å« */
 #include "CONFIG.h"
 #include "board.h"
 #include "drv_radio.h"
@@ -20,11 +20,11 @@ static uint8_t data_type = DATA_TYPE_ANOLINK;
 /*********************************************************************
  * @fn      RF_2G4StatusCallBack
  *
- * @brief   RF ×´Ì¬»Øµ÷£¬×¢Òâ£º²»¿ÉÔÚ´Ëº¯ÊıÖĞÖ±½Óµ÷ÓÃRF½ÓÊÕ»òÕß·¢ËÍAPI£¬ĞèÒªÊ¹ÓÃÊÂ¼şµÄ·½Ê½µ÷ÓÃ
+ * @brief   RF çŠ¶æ€å›è°ƒï¼Œæ³¨æ„ï¼šä¸å¯åœ¨æ­¤å‡½æ•°ä¸­ç›´æ¥è°ƒç”¨RFæ¥æ”¶æˆ–è€…å‘é€APIï¼Œéœ€è¦ä½¿ç”¨äº‹ä»¶çš„æ–¹å¼è°ƒç”¨
  *
- * @param   sta     - ×´Ì¬ÀàĞÍ
- * @param   crc     - crcĞ£Ñé½á¹û
- * @param   rxBuf   - Êı¾İbufÖ¸Õë
+ * @param   sta     - çŠ¶æ€ç±»å‹
+ * @param   crc     - crcæ ¡éªŒç»“æœ
+ * @param   rxBuf   - æ•°æ®bufæŒ‡é’ˆ
  *
  * @return  none
  */
@@ -102,12 +102,12 @@ void RF_2G4StatusCallBack(uint8_t sta, uint8_t crc, uint8_t *rxBuf)
 /*********************************************************************
  * @fn      RF_ProcessEvent
  *
- * @brief   RF ÊÂ¼ş´¦Àí
+ * @brief   RF äº‹ä»¶å¤„ç†
  *
- * @param   task_id - ÈÎÎñID
- * @param   events  - ÊÂ¼ş±êÖ¾
+ * @param   task_id - ä»»åŠ¡ID
+ * @param   events  - äº‹ä»¶æ ‡å¿—
  *
- * @return  Î´Íê³ÉÊÂ¼ş
+ * @return  æœªå®Œæˆäº‹ä»¶
  */
 uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 {
@@ -166,10 +166,10 @@ void radio_set_channel(uint8_t ch)
     if(rf_config.Channel == ch)
         return;
 
-    rf_config.accessAddress = 0x71764129; // ½ûÖ¹Ê¹ÓÃ0x55555555ÒÔ¼°0xAAAAAAAA ( ½¨Òé²»³¬¹ı24´ÎÎ»·´×ª£¬ÇÒ²»³¬¹ıÁ¬ĞøµÄ6¸ö0»ò1 )
+    rf_config.accessAddress = 0x71764129; // ç¦æ­¢ä½¿ç”¨0x55555555ä»¥åŠ0xAAAAAAAA ( å»ºè®®ä¸è¶…è¿‡24æ¬¡ä½åè½¬ï¼Œä¸”ä¸è¶…è¿‡è¿ç»­çš„6ä¸ª0æˆ–1 )
     rf_config.CRCInit = 0x555555;
     rf_config.Channel = ch;
-    rf_config.LLEMode = LLE_MODE_AUTO | LLE_MODE_PHY_CODED_S2; // Ê¹ÄÜ LLE_MODE_EX_CHANNEL ±íÊ¾ Ñ¡Ôñ rfConfig.Frequency ×÷ÎªÍ¨ĞÅÆµµã
+    rf_config.LLEMode = LLE_MODE_AUTO | LLE_MODE_PHY_CODED_S2; // ä½¿èƒ½ LLE_MODE_EX_CHANNEL è¡¨ç¤º é€‰æ‹© rfConfig.Frequency ä½œä¸ºé€šä¿¡é¢‘ç‚¹
     rf_config.rfStatusCB = RF_2G4StatusCallBack;
     rf_config.RxMaxlen = 251;
     RF_Config(&rf_config);
@@ -177,7 +177,7 @@ void radio_set_channel(uint8_t ch)
 /*********************************************************************
  * @fn      radio_hw_init
  *
- * @brief   radio ³õÊ¼»¯
+ * @brief   radio åˆå§‹åŒ–
  *
  * @return  none
  */
@@ -186,10 +186,10 @@ void radio_hw_init(void)
     uint8_t    state;
 
     taskID = TMOS_ProcessEventRegister(RF_ProcessEvent);
-    rf_config.accessAddress = 0x71764129; // ½ûÖ¹Ê¹ÓÃ0x55555555ÒÔ¼°0xAAAAAAAA ( ½¨Òé²»³¬¹ı24´ÎÎ»·´×ª£¬ÇÒ²»³¬¹ıÁ¬ĞøµÄ6¸ö0»ò1 )
+    rf_config.accessAddress = 0x71764129; // ç¦æ­¢ä½¿ç”¨0x55555555ä»¥åŠ0xAAAAAAAA ( å»ºè®®ä¸è¶…è¿‡24æ¬¡ä½åè½¬ï¼Œä¸”ä¸è¶…è¿‡è¿ç»­çš„6ä¸ª0æˆ–1 )
     rf_config.CRCInit = 0x555555;
     rf_config.Channel = 10;
-    rf_config.LLEMode = LLE_MODE_AUTO | LLE_MODE_PHY_CODED_S2; // Ê¹ÄÜ LLE_MODE_EX_CHANNEL ±íÊ¾ Ñ¡Ôñ rfConfig.Frequency ×÷ÎªÍ¨ĞÅÆµµã
+    rf_config.LLEMode = LLE_MODE_AUTO | LLE_MODE_PHY_CODED_S2; // ä½¿èƒ½ LLE_MODE_EX_CHANNEL è¡¨ç¤º é€‰æ‹© rfConfig.Frequency ä½œä¸ºé€šä¿¡é¢‘ç‚¹
     rf_config.rfStatusCB = RF_2G4StatusCallBack;
     rf_config.RxMaxlen = 251;
     state = RF_Config(&rf_config);

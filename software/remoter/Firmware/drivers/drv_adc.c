@@ -1,6 +1,6 @@
 
 
-/* Í·ÎÄ¼ş°üº¬ */
+/* å¤´æ–‡ä»¶åŒ…å« */
 #include "board.h"
 #include "CH58x_common.h"
 #include "drv_adc.h"
@@ -49,7 +49,7 @@ void adc_hw_init(void)
     GPIOA_ModeCfg(GPIO_Pin_3, GPIO_ModeIN_Floating);
     GPIOA_ModeCfg(GPIO_Pin_7, GPIO_ModeIN_Floating);
     ADC_ExtSingleChSampInit(SampleFreq_8, ADC_PGA_1_2);
-    RoughCalib_Value = ADC_DataCalib_Rough(); // ÓÃÓÚ¼ÆËãADCÄÚ²¿Æ«²î£¬¼ÇÂ¼µ½È«¾Ö±äÁ¿ RoughCalib_ValueÖĞ
+    RoughCalib_Value = ADC_DataCalib_Rough(); // ç”¨äºè®¡ç®—ADCå†…éƒ¨åå·®ï¼Œè®°å½•åˆ°å…¨å±€å˜é‡ RoughCalib_Valueä¸­
     rt_sem_init(&wait_sem, "adc_wait", 0x00, RT_IPC_FLAG_FIFO);
     PFIC_EnableIRQ(ADC_IRQn);
 }
@@ -88,12 +88,12 @@ void adc_multi_convert(void)
 /*********************************************************************
  * @fn      ADC_IRQHandler
  *
- * @brief   ADCÖĞ¶Ïº¯Êı
+ * @brief   ADCä¸­æ–­å‡½æ•°
  *
  * @return  none
  */
 __HIGH_CODE
-void ADC_IRQHandler(void) //adcÖĞ¶Ï·şÎñ³ÌĞò
+void ADC_IRQHandler(void) //adcä¸­æ–­æœåŠ¡ç¨‹åº
 {
     if(ADC_GetITStatus())
     {
@@ -105,7 +105,7 @@ void ADC_IRQHandler(void) //adcÖĞ¶Ï·şÎñ³ÌĞò
             if(conver_index < ADC_CHANNEL_MAX)
             {
             ADC_ChannelCfg(adc_channel_map[conver_index]);
-            ADC_StartUp(); // ×÷ÓÃÇå³ıÖĞ¶Ï±êÖ¾²¢¿ªÆôĞÂÒ»ÂÖ²ÉÑù
+            ADC_StartUp(); // ä½œç”¨æ¸…é™¤ä¸­æ–­æ ‡å¿—å¹¶å¼€å¯æ–°ä¸€è½®é‡‡æ ·
             }
             else
             {

@@ -1,5 +1,4 @@
 
-/* ͷ�ļ����� */
 #include "board.h"
 #include "HAL.h"
 
@@ -77,7 +76,6 @@ void state_change(encoder_data_t *data,uint16_t astate, uint16_t bstate)
         data->pos--;
       break;
   }
-
 }
 
 /**************************************************************************************************

@@ -16,7 +16,7 @@ extern "C" {
 #define KEY_SW_RIGHT            0x04  // key right size
 #define KEY_SW_POWER            0x08  // key power
 
-/* °´¼ü¶¨Òå */
+/* æŒ‰é”®å®šä¹‰ */
 
 /* 1 - KEY */
 #define KEY_HOME_BV                  BV(22)

@@ -7,11 +7,11 @@ static uint8_t buzzer_volume = 128;
 
 void buzzer_hw_init(void)
 {
-    /* ≈‰÷√GPIO */
+    /* ÈÖçÁΩÆGPIO */
     GPIOB_ModeCfg(GPIO_Pin_0, GPIO_ModeOut_PP_5mA);  // PB0 - PWM6
     PWMX_CLKCfg(40000/256);                                   // cycle = 4/Fsys
-    PWMX_CycleCfg(PWMX_Cycle_256);                     // ÷‹∆⁄ = 256*cycle
-    PWMX_ACTOUT(CH_PWM6, 128, Low_Level, DISABLE);  // 50% ’ºø’±»
+    PWMX_CycleCfg(PWMX_Cycle_256);                     // Âë®Êúü = 256*cycle
+    PWMX_ACTOUT(CH_PWM6, 128, Low_Level, DISABLE);  // 50% Âç†Á©∫ÊØî
 }
 
 void buzzer_set_volume(uint8_t volume)
@@ -23,7 +23,7 @@ void buzzer_set_freq(uint16_t freq)
 {
     PWMX_ACTOUT(CH_PWM6, buzzer_volume, Low_Level, DISABLE);
     PWMX_CLKCfg(SET_FREQ(freq));
-    PWMX_CycleCfg(PWMX_Cycle_256);           // ÷‹∆⁄ = 256*cycle
+    PWMX_CycleCfg(PWMX_Cycle_256);           // Âë®Êúü = 256*cycle
 }
 void buzzer_start(void)
 {

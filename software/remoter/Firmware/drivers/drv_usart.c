@@ -20,10 +20,10 @@ int usart_init(void)
 {
     rt_ringbuffer_init(&rt_uart_ringbuf, rt_uart_buffer, RT_UART_RINGBUF_SIZE);
 
-    /* ÅäÖÃ´®¿Ú1£ºÏÈÅäÖÃIO¿ÚÄ£Ê½£¬ÔÙÅäÖÃ´®¿Ú */
+    /* é…ç½®ä¸²å£1ï¼šå…ˆé…ç½®IOå£æ¨¡å¼ï¼Œå†é…ç½®ä¸²å£ */
     GPIOA_SetBits(GPIO_Pin_9);
-    GPIOA_ModeCfg(GPIO_Pin_8, GPIO_ModeIN_PU);      // RXD-ÅäÖÃÉÏÀ­ÊäÈë
-    GPIOA_ModeCfg(GPIO_Pin_9, GPIO_ModeOut_PP_5mA); // TXD-ÅäÖÃÍÆÍìÊä³ö£¬×¢ÒâÏÈÈÃIO¿ÚÊä³ö¸ßµçÆ½
+    GPIOA_ModeCfg(GPIO_Pin_8, GPIO_ModeIN_PU);      // RXD-é…ç½®ä¸Šæ‹‰è¾“å…¥
+    GPIOA_ModeCfg(GPIO_Pin_9, GPIO_ModeOut_PP_5mA); // TXD-é…ç½®æŽ¨æŒ½è¾“å‡ºï¼Œæ³¨æ„å…ˆè®©IOå£è¾“å‡ºé«˜ç”µå¹³
 
     UART1_BaudRateCfg(115200);
     R8_UART1_FCR = (0 << 6) | RB_FCR_TX_FIFO_CLR | RB_FCR_RX_FIFO_CLR | RB_FCR_FIFO_EN;

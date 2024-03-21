@@ -12,7 +12,7 @@ extern "C" {
 #define SBP_RF_CHANNEL_HOP_TX_EVT    (1 << 3)
 #define SBP_RF_CHANNEL_HOP_RX_EVT    (1 << 4)
 
-#define LLE_MODE_ORIGINAL_RX         (0x80) //Èç¹ûÅäÖÃLLEMODEÊ±¼ÓÉÏ´Ëºê£¬Ôò½ÓÊÕµÚÒ»×Ö½ÚÎªÔ­Ê¼Êý¾Ý£¨Ô­À´ÎªRSSI£©
+#define LLE_MODE_ORIGINAL_RX         (0x80) //å¦‚æžœé…ç½®LLEMODEæ—¶åŠ ä¸Šæ­¤å®ï¼Œåˆ™æŽ¥æ”¶ç¬¬ä¸€å­—èŠ‚ä¸ºåŽŸå§‹æ•°æ®ï¼ˆåŽŸæ¥ä¸ºRSSIï¼‰
 
 extern void radio_set_channel(uint8_t ch);
 extern void radio_hw_init(void);
